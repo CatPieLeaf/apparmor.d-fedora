@@ -1,5 +1,5 @@
-# RakuOS ignore file
-# Profiles and groups not applicable to RakuOS
+# Fedora ignore file
+# Profiles and groups not applicable to Fedora
 
 # Full system policy — only included when built with FSP flag
 apparmor.d/groups/_full
@@ -14,17 +14,21 @@ man
 apparmor.d/groups/code
 apparmor.d/groups/steam
 
-# Distro-specific package managers not on RakuOS
-apparmor.d/groups/apt
-apparmor.d/groups/pacman
-apparmor.d/groups/ubuntu
-
-# DEs not shipped on RakuOS
-apparmor.d/groups/hyprland
-apparmor.d/groups/lxqt
-apparmor.d/groups/xfce
-
 # Distro-specific
 claude
 dunst
 plasma-discover
+
+# Archlinux specific
+apparmor.d/groups/pacman
+share/libalpm
+
+# Debian specific definition
+apparmor.d/groups/apt
+
+# Ubuntu specific definition
+apparmor.d/groups/ubuntu
+
+# Profiles provided by they own package
+libvirt
+virt-aa-helper
