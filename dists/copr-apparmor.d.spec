@@ -9,6 +9,8 @@
 
 %define _complain 0
 
+%define _disable_source_fetch 0
+
 Name:           apparmor.d
 Version:        0.4909.0
 Release:        1%{?dist}
@@ -37,7 +39,7 @@ you have already validated this profile set in complain mode.
 %endif
 
 %prep
-%autosetup -n %{name}-%{version}
+%autosetup -n %{name}-fedora-main
 
 %build
 %if %{_complain}
