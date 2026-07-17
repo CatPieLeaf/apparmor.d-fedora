@@ -24,6 +24,13 @@ profile startplasma-login-wayland @{exec_path} {
 
   /etc/xdg/menus/{,**} r,
 
+  owner @{plasmalogin_cache_dirs}/#@{int} rw,
+  owner @{plasmalogin_cache_dirs}/ksycoca{5,6}_* rwkl -> @{plasmalogin_cache_dirs}/#@{int},
+  owner @{plasmalogin_config_dirs}/kdedefaults/kdeglobals r,
+  owner @{plasmalogin_config_dirs}/kdedefaults/package r,
+  owner @{plasmalogin_config_dirs}/kdeglobals r,
+  owner @{plasmalogin_config_dirs}/plasma-localerc r,
+
   owner @{sddm_cache_dirs}/#@{int} rw,
   owner @{sddm_cache_dirs}/ksycoca{5,6}_* rwkl -> @{sddm_cache_dirs}/#@{int},
   owner @{sddm_config_dirs}/kdedefaults/* r,

@@ -8,7 +8,7 @@ abi <abi/4.0>,
 include <tunables/global>
 
 @{exec_path} = @{bin}/xkbcomp
-profile xkbcomp @{exec_path} flags=(attach_disconnected) {
+profile xkbcomp @{exec_path} flags=(attach_disconnected,mediate_deleted) {
   include <abstractions/base>
   include <abstractions/consoles>
   include <abstractions/mesa>
@@ -21,6 +21,9 @@ profile xkbcomp @{exec_path} flags=(attach_disconnected) {
   @{exec_path} mr,
 
   /usr/share/X11/xkb/** r,
+
+  # fd inherited from xwayland (file_inherit denial in logs)
+  /usr/share/xwayland/protocol.txt r,
 
   /var/lib/xkb/server-@{int}.xkm w,
   /var/lib/xkb/compiled/server-@{int}.xkm rw,

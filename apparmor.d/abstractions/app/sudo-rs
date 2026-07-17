@@ -19,7 +19,13 @@
   capability setgid,
   capability setuid,
 
-  network (create receive send) netlink raw,
+  #aa:only fedora
+  capability sys_resource,
+
+  network (create receive send getattr) netlink raw,
+
+  #aa:only fedora
+  network bind netlink raw,
 
   unix type=stream addr=@@{udbus}/bus/sudo/system,
 
@@ -31,17 +37,36 @@
   @{bin}/sudo        mr,
   @{bin}/sudo-rs     mr,
 
+  @{sbin}/unix_chkpwd rPx,
+
   @{etc_ro}/sudo.conf r,
   @{etc_ro}/sudoers r,
   @{etc_ro}/sudoers.d/{,*} r,
+
+  #aa:only fedora
+  /etc/authselect/system-auth r,
+  /etc/pam.d/sudo   r,
+  /etc/pam.d/sudo-i r,
+  /etc/pam.d/sudo-l r,
 
   /etc/machine-id r,
 
   @{run}/systemd/io.systemd.Login rw,
 
+  @{run}/faillock/ rw,        #aa:only fedora
+  @{run}/faillock/@{user} rwk,  #aa:only fedora
+
   owner @{run}/sudo-rs/ w,
   owner @{run}/sudo-rs/ts/ w,
   owner @{run}/sudo-rs/ts/@{uid} rwk,
+
+  #aa:only fedora
+  # Fedora's sudo-rs keeps the classic /run/sudo/ts/ timestamp path for
+  # drop-in compatibility with sudo, rather than /run/sudo-rs/ts/.
+  /run/ r,
+  owner @{run}/sudo/ rw,
+  owner @{run}/sudo/ts/ rw,
+  owner @{run}/sudo/ts/@{uid} rwk,
 
   @{PROC}/@{pid}/loginuid r,
   @{PROC}/@{pid}/stat r,

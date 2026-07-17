@@ -32,6 +32,8 @@ profile systemd-user-runtime-dir @{exec_path} flags=(attach_disconnected) {
   @{exec_path} mr,
 
   /etc/machine-id r,
+  #aa:only fedora
+  /etc/login.defs r,
 
   /dev/shm/ r,
   /tmp/ r,

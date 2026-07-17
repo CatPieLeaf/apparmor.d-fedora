@@ -10,7 +10,7 @@ include <tunables/global>
 @{profile_dbus} = xdg-dbus-proxy
 
 @{exec_path} = @{bin}/bwrap
-profile fbwrap flags=(attach_disconnected,mediate_deleted) {
+profile fbwrap flags=(complain,attach_disconnected,mediate_deleted) {
   include <abstractions/base>
   include <abstractions/app/flatpak>
   include <abstractions/bwrap>
@@ -80,7 +80,7 @@ profile fbwrap flags=(attach_disconnected,mediate_deleted) {
         @{PROC}/cgroups r,
   owner @{PROC}/@{pid}/coredump_filter rw,
 
-  profile ldconfig flags=(attach_disconnected,mediate_deleted) {
+  profile ldconfig flags=(complain,attach_disconnected,mediate_deleted) {
     include <abstractions/base>
     include <abstractions/consoles>
 

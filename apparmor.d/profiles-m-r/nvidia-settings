@@ -14,11 +14,19 @@ profile nvidia-settings @{exec_path} flags=(attach_disconnected) {
   include <abstractions/gstreamer>
   include <abstractions/nvidia-strict>
 
+  capability dac_override,
+  capability dac_read_search,
+
   @{exec_path} mr,
 
   /usr/share/pixmaps/{,**} r,
 
   owner @{HOME}/.nvidia-settings-rc rw,
+
+  # nvidia-settings may run elevated (pkexec/sudo); the Xauthority temp file
+  # is owned by the invoking user (ouid=1000) while fsuid=0, so 'owner' would
+  # not match — plain read is required here.
+  /run/user/@{uid}/xauth_@{rand6} r,
 
   @{sys}/bus/pci/devices/ r,
   @{sys}/devices/@{pci}/config r,

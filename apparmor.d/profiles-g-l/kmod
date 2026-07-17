@@ -19,6 +19,12 @@ profile kmod @{exec_path} flags=(attach_disconnected) {
   capability net_admin,
   capability sys_module,
   capability syslog,
+  #aa:only fedora
+  capability bpf,
+  #aa:only fedora
+  capability perfmon,
+  #aa:only fedora
+  capability sys_admin,
 
   network inet raw,
 

@@ -114,6 +114,15 @@
   # Show the list of active tty
   @{sys}/devices/virtual/tty/tty@{int}/active r,
 
+  # Root platform bus uevent (the platform pseudo-bus itself), and the uevent
+  # of every device attached to it (ACPI buttons, pcspkr, i8042, etc.). Needed
+  # by apps that probe basic hardware info at startup.
+  @{sys}/devices/platform/uevent r,
+  @{sys}/devices/platform/*/uevent r,
+
+  # Distro identification banner some apps read at startup
+  /etc/issue r,
+
   # List processes in /proc
   @{PROC}/ r,
 
@@ -229,6 +238,9 @@
   # Reads of oom_adj and oom_score_adj are safe
   owner @{PROC}/@{pid}/oom_adj r,
   owner @{PROC}/@{pid}/oom_score_adj r,
+
+  # Read-only, informational; distinct from oom_score_adj above
+  owner @{PROC}/@{pid}/oom_score r,
 
   # This allows raising the OOM score of other processes owned by the user.
   owner @{PROC}/@{pid}/oom_score_adj w,

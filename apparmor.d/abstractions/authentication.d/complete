@@ -5,6 +5,16 @@
   @{bin}/pam-tmpdir-helper rPx,
   @{lib}/pam-tmpdir/pam-tmpdir-helper rPx,
 
+  # Fallback for the pre-4.1 abi/parser, which does not support the
+  # priority + named-transition stacking syntax used by profiles that need
+  # unix_chkpwd (e.g. polkit-agent-helper's own apparmor>=4.1 rule). Do not
+  # widen this filter to also match "dnf"/"fedora": the "only" directive ORs
+  # its arguments, so "abi==3 dnf" fires on every Fedora build regardless of
+  # abi, landing a second priority=1 unix_chkpwd rule with a conflicting x
+  # modifier in polkit-agent-helper whenever apparmor>=4.1 is also true
+  # ("profile has merged rule with conflicting x modifiers"). That polluted
+  # every profile that includes this shared abstraction, including sudo,
+  # login, sshd, gdm, sddm, lightdm, and cron, not just polkit-agent-helper.
   #aa:only abi==3
   @{sbin}/unix_chkpwd rPx,
 

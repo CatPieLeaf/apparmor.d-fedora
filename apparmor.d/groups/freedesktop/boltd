@@ -30,6 +30,7 @@ profile boltd @{exec_path} flags=(attach_disconnected) {
   owner @{run}/boltd/{,**} rw,
 
   @{run}/udev/data/+thunderbolt:* r,      # For Thunderbolt devices, such as docks, external GPUs, and storage devices.
+  @{run}/udev/data/+wmi:* r,              # For WMI-based Thunderbolt controllers exposed via ACPI on some laptops
 
   @{sys}/bus/ r,
   @{sys}/bus/thunderbolt/devices/ r,

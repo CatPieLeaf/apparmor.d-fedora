@@ -46,6 +46,16 @@ profile systemd-coredump @{exec_path} flags=(attach_disconnected,mediate_deleted
 
   /etc/systemd/coredump.conf r,
   /etc/systemd/coredump.conf.d/{,**} r,
+  #aa:only fedora
+  /etc/login.defs r,
+  #aa:only fedora
+  /etc/pki/tls/openssl.cnf r,
+  #aa:only fedora
+  /etc/pki/tls/openssl.d/ r,
+  #aa:only fedora
+  /etc/pki/tls/openssl.d/* r,
+  #aa:only fedora
+  /etc/crypto-policies/back-ends/opensslcnf.config r,
 
   owner @{HOME}/**.so* r,
   owner @{HOME}/.var/app/*/** r, # Crash from flatpak apps

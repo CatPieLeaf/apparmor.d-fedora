@@ -26,6 +26,9 @@ profile systemd-backlight @{exec_path} flags=(attach_disconnected) {
   @{sys}/bus/ r,
   @{sys}/bus/pci/devices/ r,
 
+  @{sys}/devices/@{pci_bus}/uevent r,
+  @{sys}/devices/@{pci_bus}/**/uevent r,     # Recurse into i2c, drm, graphics, wakeup, and nested bridges/domains
+
   @{sys}/devices/@{pci}/ r,
   @{sys}/devices/@{pci}/class r,
 

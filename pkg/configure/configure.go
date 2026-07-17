@@ -41,6 +41,28 @@ func (p Configure) Apply() ([]string, error) {
 	switch tasks.Distribution {
 	case "arch", "opensuse":
 
+	case "fedora":
+		// Fedora ships sudo-rs as the default /usr/bin/sudo provider (via
+		// update-alternatives); the original GNU sudo binary is kept
+		// installed side-by-side as /usr/bin/gnu_sudo. Repoint exec_path in
+		// both profiles so each attaches to the binary it actually confines
+		// instead of both claiming /usr/bin/sudo.
+		patches := []struct{ file, from, to string }{
+			{"sudo", "@{exec_path} = @{bin}/sudo\n", "@{exec_path} = @{bin}/gnu_sudo\n"},
+			{"sudo-rs", "@{exec_path} = @{bin}/sudo-rs @{lib}/cargo/bin/sudo\n", "@{exec_path} = @{bin}/sudo @{bin}/sudo-rs @{lib}/cargo/bin/sudo\n"},
+		}
+		for _, patch := range patches {
+			path := p.RootApparmor.Join(patch.file)
+			out, err := path.ReadFileAsString()
+			if err != nil {
+				return res, err
+			}
+			out = strings.ReplaceAll(out, patch.from, patch.to)
+			if err := path.WriteFile([]byte(out)); err != nil {
+				return res, err
+			}
+		}
+
 	case "ubuntu":
 		if err := prebuild.DebianHide.Init(); err != nil {
 			return res, err

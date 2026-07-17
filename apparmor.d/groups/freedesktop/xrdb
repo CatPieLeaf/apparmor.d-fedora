@@ -21,8 +21,13 @@ profile xrdb @{exec_path} flags=(attach_disconnected) {
   @{bin}/cpp                           rix,
   @{lib}/gcc/@{multiarch}/@{version}/cc1  rix,
   @{lib}/llvm-[0-9]*/bin/clang         rix,
+  #aa:only fedora
+  /usr/libexec/gcc/@{multiarch}/@{version}/cc1  rix,
 
   /usr/include/stdc-predef.h r,
+
+  # Wayland/XWayland DMA-BUF handoff, inherited across the cpp/cc1 exec chain
+  /dev/udmabuf rw,
 
   @{etc_ro}/X11/xdm/Xresources r,
   @{etc_ro}/X11/Xresources r,

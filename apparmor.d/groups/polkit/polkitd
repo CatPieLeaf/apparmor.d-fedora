@@ -31,6 +31,9 @@ profile polkitd @{exec_path} flags=(attach_disconnected) {
 
   @{exec_path} mr,
 
+  #aa:only fedora
+  @{bin}/pkla-check-authorization  rix,
+  #aa:exclude fedora
   @{bin}/pkla-check-authorization  rPx,
   @{bin}/pkla-admin-identities     rPx,
 
@@ -50,6 +53,8 @@ profile polkitd @{exec_path} flags=(attach_disconnected) {
   /usr/share/polkit-1/rules.d/ r,
   /usr/share/polkit-1/rules.d/*.rules r,
   /usr/share/polkit-1/rules.d/*.rules.example r,
+  #aa:only fedora
+  /usr/share/polkit-1/rules.d/*.rules.choice r,
 
   # Vendor policies
   /usr/share/polkit-1/actions/ r,

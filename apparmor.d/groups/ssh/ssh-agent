@@ -19,8 +19,78 @@ profile ssh-agent @{exec_path} {
   @{exec_path} mr,
 
   @{sh_path}                   rix,
+  #aa:only fedora
+  @{lib}/plasma-dbus-run-session-if-needed                       rix,
+  #aa:only fedora
+  @{lib}/@{multiarch}/libexec/plasma-dbus-run-session-if-needed  rix,
+  #aa:only fedora
+  @{bin}/startplasma-x11       Px -> startplasma,
+  #aa:only fedora
+  @{bin}/startplasma-wayland   Px -> startplasma,
   @{bin}/gpg-agent             rPx,
   @{bin}/im-launch             rPx,
+
+  #aa:only fedora
+  @{bin}/hostname               rix,
+  #aa:only fedora
+  @{bin}/hostnamectl            rix,
+  #aa:only fedora
+  @{bin}/id                     rix,
+  #aa:only fedora
+  @{bin}/uname                  rix,
+
+  # bash acts as a login/interactive shell here (it drives the whole KDE
+  # session bootstrap on Fedora's plasma-x11/wayland .desktop Exec= line),
+  # so it needs the usual login-shell rc/profile files.
+  #aa:only fedora
+  include <abstractions/bash-strict>
+
+  #aa:only fedora
+  /etc/pki/tls/openssl.cnf r,
+  #aa:only fedora
+  /etc/pki/tls/openssl.d/ r,
+  #aa:only fedora
+  /etc/pki/tls/openssl.d/* r,
+  #aa:only fedora
+  /etc/crypto-policies/back-ends/opensslcnf.config r,
+  #aa:only fedora
+  /etc/GREP_COLORS r,
+  #aa:only fedora
+  /etc/debuginfod/ r,
+  #aa:only fedora
+  /etc/flatpak/installations.d/ r,
+  #aa:only fedora
+  owner @{HOME}/ r,
+  #aa:only fedora
+  owner @{HOME}/.sdkman/etc/config r,
+  #aa:only fedora
+  owner @{HOME}/.sdkman/var/candidates r,
+  #aa:only fedora
+  owner @{HOME}/.sdkman/var/platform r,
+  #aa:only fedora
+  owner @{HOME}/.sdkman/src/ r,
+  #aa:only fedora
+  owner @{HOME}/.sdkman/ext/ r,
+  #aa:only fedora
+  @{PROC}/@{pid}/fd/ r,
+  #aa:only fedora
+  @{bin}/gettext rix,
+
+  #aa:only fedora
+  @{coreutils_path} rix,
+  #aa:only fedora
+  /usr/bin/locale rix,
+  #aa:only fedora
+  /usr/bin/flatpak rix,
+  #aa:only fedora
+  /usr/libexec/grepconf.sh rix,
+
+  #aa:only fedora
+  owner @{HOME}/.deno/env r,
+  #aa:only fedora
+  owner @{HOME}/.sdkman/bin/sdkman-init.sh r,
+  #aa:only fedora
+  owner @{HOME}/.local/share/bash-completion/completions/{,*} r,
 
   owner @{HOME}/@{XDG_SSH_DIR}/ rw,
   owner @{HOME}/@{XDG_SSH_DIR}/* r,

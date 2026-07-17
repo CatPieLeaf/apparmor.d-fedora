@@ -6,7 +6,8 @@ abi <abi/4.0>,
 
 include <tunables/global>
 
-@{name} = firefox{,-esr,-bin,-nightly}
+@{name} = firefox{,-esr,-bin}
+@{name} += firefox-nightly #aa:exclude fedora
 @{lib_dirs} = @{lib}/@{name} /opt/@{name}
 @{config_dirs} = @{HOME}/.mozilla/
 @{cache_dirs} = @{user_cache_dirs}/mozilla/

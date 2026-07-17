@@ -54,6 +54,12 @@ profile gpg @{exec_path} flags=(attach_disconnected) {
   /var/tmp/zypp.tmp/zypp.@{rand6}/ rw,
   /var/tmp/zypp.tmp/zypp.@{rand6}/** rwlk -> /var/tmp/zypp.tmp/zypp.@{rand6}/**,
 
+  #aa:only fedora
+  # dnf5daemon-server spawns gpg with its homedir pointed at one of these,
+  # for RPM/repo signature verification; gpg's dotlock file needs create+lock.
+  owner /tmp/libdnf5.@{rand6}/ rw,
+  owner /tmp/libdnf5.@{rand6}/** rwlk -> /tmp/libdnf5.@{rand6}/**,
+
   owner @{HOME}/@{XDG_GPG_DIR}/ rw,
   owner @{HOME}/@{XDG_GPG_DIR}/** rwlk -> @{HOME}/@{XDG_GPG_DIR}/**,
 

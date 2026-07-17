@@ -18,11 +18,20 @@ var (
 
 type ProfileMode struct {
 	tasks.BaseTask
-	modes map[string]string
+	modes      map[string]string
+	enforceAll bool
 }
 
 // NewProfileMode creates a new ProfileMode builder.
-func NewProfileMode() *ProfileMode {
+//
+// enforceAll mirrors the global --enforce build flag. When set, entries from
+// dist/flags that would set "complain" are skipped: otherwise this builder
+// (which always runs, and runs after the Enforce builder) would silently put
+// every profile listed in the distribution's .flags file (e.g. dist/flags/
+// fedora.flags) back into complain mode, even on a build that explicitly
+// asked for global enforcement. Non-complain modes (kill, unconfined,
+// default_allow, prompt...) from the manifest are still honored either way.
+func NewProfileMode(enforceAll bool) *ProfileMode {
 	modes := make(map[string]string)
 	for _, name := range []string{"main", tasks.Distribution} {
 		for profile, flags := range prebuild.Flags.Read(name) {
@@ -36,7 +45,8 @@ func NewProfileMode() *ProfileMode {
 			Keyword: "profile-mode",
 			Msg:     "Build: set modes (complain, enforce...) as definied in dist/flags",
 		},
-		modes: modes,
+		modes:      modes,
+		enforceAll: enforceAll,
 	}
 }
 
@@ -49,6 +59,10 @@ func (b ProfileMode) Apply(opt *Option, profile string) (string, error) {
 	name := matches[1]
 	mode, present := b.modes[name]
 	if !present {
+		return profile, nil
+	}
+
+	if b.enforceAll && mode == "complain" {
 		return profile, nil
 	}
 

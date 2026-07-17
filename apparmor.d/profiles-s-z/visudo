@@ -1,0 +1,41 @@
+# apparmor.d - Full set of apparmor profiles
+# Copyright (C) 2026 RakuOS <packages@rakuos.org>
+# SPDX-License-Identifier: GPL-2.0-only
+
+abi <abi/4.0>,
+
+include <tunables/global>
+
+# visudo may be an alternatives symlink to visudo-rs on systems that use it.
+# gnu_visudo is the original sudo package's visudo binary, kept as an
+# alternate name where both are installed side by side.
+@{exec_path} = @{bin}/visudo @{bin}/visudo-rs @{bin}/gnu_visudo
+profile visudo @{exec_path} flags=(attach_disconnected) {
+  include <abstractions/base>
+  include <abstractions/consoles>
+  include <abstractions/nameservice-strict>
+
+  capability dac_override,
+  capability dac_read_search,
+  capability setuid,
+  capability setgid,
+
+  @{exec_path} mr,
+
+  @{bin}/@{text_editors_names}  rPUx,
+  @{bin}/vi          rPUx,
+  @{bin}/vim         rPUx,
+  @{bin}/nano        rPUx,
+  @{bin}/emacs       rPUx,
+
+  @{etc_ro}/sudoers r,
+  @{etc_ro}/sudoers.d/{,*} r,
+  /etc/sudoers.tmp rw,
+  /etc/sudoers.d/ rw,
+
+  owner @{tmp}/visudo-* rw,
+
+  include if exists <local/visudo>
+}
+
+# vim:syntax=apparmor

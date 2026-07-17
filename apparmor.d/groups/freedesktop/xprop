@@ -16,6 +16,9 @@ profile xprop @{exec_path} flags=(attach_disconnected) {
 
   @{exec_path} mr,
 
+  # Wayland/XWayland DMA-BUF handoff
+  /dev/udmabuf rw,
+
   include if exists <local/xprop>
 }
 

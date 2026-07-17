@@ -53,6 +53,11 @@ profile wireplumber @{exec_path} flags=(attach_disconnected) {
   /usr/share/spa-*/bluez@{int}/{,*} r,
   /usr/share/wireplumber/{,**} r,
 
+  /etc/wireplumber/policy.lua.d/ r,
+  /etc/wireplumber/main.lua.d/ r,
+  /etc/wireplumber/bluetooth.lua.d/ r,
+  /etc/crypto-policies/back-ends/gnutls.config r,
+
         / r,
         /att/**/ r,
   owner @{att}/.flatpak-info r,

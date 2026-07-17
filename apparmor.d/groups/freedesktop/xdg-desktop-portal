@@ -99,6 +99,7 @@ profile xdg-desktop-portal @{exec_path} flags=(attach_disconnected) {
   @{open_path}                           mrPx -> child-open-any,
 
   /usr/share/xdg-desktop-portal/** r,
+  /usr/share/kde-settings/kde-profile/default/xdg/kde-mimeapps.list r,
 
   /etc/sysconfig/proxy r,
 

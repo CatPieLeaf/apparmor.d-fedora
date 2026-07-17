@@ -53,6 +53,11 @@ profile rustdesk @{exec_path} {
   owner @{user_share_dirs}/logs/[rR]ust[dD]esk/{,**} rw,
   owner @{user_config_dirs}/[rR]ust[dD]esk/{,**} rw,
 
+  owner @{plasmalogin_share_dirs}/logs/ w,
+  owner @{plasmalogin_share_dirs}/logs/[rR]ust[dD]esk/{,**} rw,
+  owner @{plasmalogin_config_dirs}/[rR]ust[dD]esk/{,**} rw,
+
+
   owner @{sddm_share_dirs}/logs/ w,
   owner @{sddm_share_dirs}/logs/[rR]ust[dD]esk/{,**} rw,
   owner @{sddm_config_dirs}/[rR]ust[dD]esk/{,**} rw,

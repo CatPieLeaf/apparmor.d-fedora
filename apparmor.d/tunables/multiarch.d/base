@@ -96,5 +96,7 @@
 @{word64}=@{word32}@{word32}
 
 # Shortcut for PCI device
-@{pci_bus}=pci@{hex4}:@{hex2}
+# Domain is normally 4 hex digits, but secondary/thunderbolt PCI domains can
+# be wider (e.g. pci10000:e0), so allow a variable-length hex domain here.
+@{pci_bus}=pci@{hex}:@{hex2}
 

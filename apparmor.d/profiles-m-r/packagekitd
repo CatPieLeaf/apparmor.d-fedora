@@ -84,6 +84,14 @@ profile packagekitd @{exec_path} flags=(attach_disconnected) {
   @{bin}/rpm                         PUx,
   @{bin}/rpmdb2solv                  PUx,
 
+  #aa:only fedora
+  # The dnf5 PackageKit backend links libdnf5 in-process rather than
+  # spawning dnf5 itself, but it still shells out to rpm/rpmkeys directly
+  # for verification and to appstreamcli/repo2solv (already granted above)
+  # for metadata. Fedora is RPM-based like openSUSE, hence the overlap.
+  @{bin}/rpm                         PUx,
+  @{bin}/rpmkeys                     PUx,
+
   #aa:only ubuntu
   @{lib}/update-notifier/update-motd-updates-available  Px,
 
@@ -107,6 +115,8 @@ profile packagekitd @{exec_path} flags=(attach_disconnected) {
         /tmp/apt-changelog-@{rand6}/ w,
         /tmp/apt-changelog-@{rand6}/*.changelog rw,
         /tmp/apt-dpkg-install-@{rand6}/ rw,
+  #aa:only fedora
+  /tmp/librepo-tmp-* rwk,
   owner @{tmp}/apt-changelog-@{rand6}/.apt-acquire-privs-test.@{rand6} rw,
 
   @{att}@{run}/systemd/inhibit/@{int}.ref rw,

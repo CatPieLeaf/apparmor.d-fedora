@@ -157,6 +157,11 @@ profile sddm @{exec_path} flags=(attach_disconnected,mediate_deleted) {
   /var/lib/wtmpdb/ r,
   /var/lib/wtmpdb/* rwk,
 
+        @{PLASMALOGIN_HOME}/state.conf rw,
+  owner @{PLASMALOGIN_HOME}/** rw,
+  owner @{plasmalogin_cache_dirs}/sddm-greeter/qmlcache/*.jsc mrw,
+  owner @{plasmalogin_cache_dirs}/sddm-greeter/qmlcache/*.qmlc mrw,
+
         @{SDDM_HOME}/state.conf rw,
   owner @{SDDM_HOME}/** rw,
   owner @{sddm_cache_dirs}/sddm-greeter/qmlcache/*.jsc mrw,

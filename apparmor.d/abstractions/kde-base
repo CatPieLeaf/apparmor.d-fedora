@@ -18,6 +18,29 @@
   /etc/xdg/kdeglobals r,
   /etc/xdg/kwinrc r,
 
+  # Fedora KDE spin's system-wide default profile (from the kde-settings
+  # package, which only exists on Fedora) - not covered by any upstream
+  # apparmor.d rule, silently denied for every KDE process that falls back
+  # to it (kwalletd, kwin_wayland, plasmashell, etc.).
+  #aa:only fedora
+  /usr/share/kde-settings/kde-profile/default/xdg/kdeglobals r,
+  /usr/share/kde-settings/kde-profile/default/xdg/kcminputrc r,
+  /usr/share/kde-settings/kde-profile/default/xdg/kwinrc r,
+
+  # libUnion.so (plasma-union widget style) per-user style cache - shared
+  # library loaded in-process by many KDE apps, so it lives here rather
+  # than in any one profile.
+  owner @{HOME}/.cache/union/ r,
+  owner @{HOME}/.cache/union/** rmix,
+
+  # Klassy kwin decoration - also a shared library loaded in-process (by
+  # kwin_wayland/kwin_x11), not its own executable. Config lives in its own
+  # subdirectory, not directly under @{user_config_dirs}.
+  owner @{user_config_dirs}/klassy/ r,
+  owner @{user_config_dirs}/klassy/klassyrc r,
+  owner @{plasmalogin_config_dirs}/klassy/ r,
+  owner @{plasmalogin_config_dirs}/klassy/klassyrc r,
+
   owner @{user_cache_dirs}/#@{int} rw,
   owner @{user_cache_dirs}/icon-cache.kcache rw,
   owner @{user_cache_dirs}/ksycoca{5,6}_??{_,-}* rwlk,

@@ -1,0 +1,101 @@
+# apparmor.d - Full set of apparmor profiles
+# Copyright (C) 2026 RakuOS <packages@rakuos.org>
+# SPDX-License-Identifier: GPL-2.0-only
+
+abi <abi/4.0>,
+
+include <tunables/global>
+
+@{name} = heroic
+@{domain} = org.chromium.Chromium
+@{lib_dirs} = /opt/@{name}/ /usr/lib/@{name}/ /usr/lib64/@{name}/
+@{config_dirs} = @{user_config_dirs}/@{name}
+@{cache_dirs} = @{user_cache_dirs}/@{name}
+@{wineprefix_dirs} = @{HOME}/Games/Heroic/Prefixes/*/
+
+# Space-containing path is kept out of @{lib_dirs} to avoid the variable being
+# expanded unquoted into the profile declaration header, which the AppArmor
+# parser tokenises on whitespace and trips with a syntax error.
+@{exec_path} = @{bin}/heroic @{lib_dirs}/heroic
+
+# A quoted, space-containing value used as one of several attachment paths
+# directly on the profile declaration header is fragile across apparmor_parser
+# versions: the header tokeniser does not accept quoted multi-word entries the
+# way a rule body does (see the quoted chrome-sandbox path below, which is
+# fine precisely because it's in a rule body, not the header). The portable
+# fix is a backslash-escaped space, which the header tokeniser does accept,
+# so this now parses correctly on every distribution and no longer needs to
+# be excluded anywhere.
+@{exec_path} += /opt/Heroic\ Games\ Launcher/heroic
+
+profile heroic @{exec_path} flags=(attach_disconnected) {
+  include <abstractions/base>
+  include <abstractions/audio-client>
+  include <abstractions/common/electron>
+  include <abstractions/graphics>
+  include <abstractions/nameservice-strict>
+  include <abstractions/screensaver>
+  include <abstractions/ssl_certs>
+  include <abstractions/user-download-strict>
+  include <abstractions/vulkan-strict>
+
+  network inet dgram,
+  network inet6 dgram,
+  network inet stream,
+  network inet6 stream,
+  network netlink raw,
+
+  @{exec_path} mrix,
+  @{sh_path}    rix,
+
+  @{lib_dirs}/chrome-sandbox rix,
+
+  #aa:exclude fedora
+  "/opt/Heroic Games Launcher/chrome-sandbox" rix,
+
+  # Bundled backend CLIs (legendary for Epic, gogdl for GOG, nile for Amazon)
+  # shipped inside heroic's own resources dir - run in heroic's domain rather
+  # than transitioning, since they're vendored copies rather than
+  # separately-packaged tools.
+  @{lib_dirs}/resources/app.asar.unpacked/**/legendary{,.exe} rix,
+  @{lib_dirs}/resources/app.asar.unpacked/**/gogdl{,.exe} rix,
+  @{lib_dirs}/resources/app.asar.unpacked/**/nile{,.exe} rix,
+  @{lib_dirs}/resources/app.asar.unpacked/**/comet{,.exe} rix,
+  @{lib_dirs}/resources/app.asar.unpacked/**/vulkan-helper rix,
+
+  #aa:exclude fedora
+  "/opt/Heroic Games Launcher/resources/app.asar.unpacked/**/legendary{,.exe}" rix,
+  "/opt/Heroic Games Launcher/resources/app.asar.unpacked/**/gogdl{,.exe}" rix,
+  "/opt/Heroic Games Launcher/resources/app.asar.unpacked/**/nile{,.exe}" rix,
+  "/opt/Heroic Games Launcher/resources/app.asar.unpacked/**/comet{,.exe}" rix,
+  "/opt/Heroic Games Launcher/resources/app.asar.unpacked/**/vulkan-helper" rix,
+
+  # Launching games goes through umu-run (Proton/Wine) or native binaries.
+  @{bin}/umu-run                    Px,
+  owner @{wineprefix_dirs}/ rw,
+  owner @{wineprefix_dirs}/** rwlk,
+
+  @{open_path} rPx -> child-open-strict,
+
+  /etc/ r,
+
+  owner @{HOME}/Games/{,**} rw,
+
+  owner @{config_dirs}/{,**} rwk,
+  owner @{cache_dirs}/{,**} rwk,
+
+  owner @{user_config_dirs}/autostart/heroic.desktop rw,
+
+  owner "@{tmp}/Heroic Crashes/" rw,
+  owner @{tmp}/heroic.sock rw,
+
+  owner @{run}/user/@{uid}/heroic-ipc-@{int} rw,
+
+  owner @{PROC}/@{pid}/mem r,
+
+  deny ptrace read,
+
+  include if exists <local/heroic>
+}
+
+# vim:syntax=apparmor

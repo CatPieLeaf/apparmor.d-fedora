@@ -1,0 +1,34 @@
+# Fedora ignore file
+# Profiles and groups not applicable to Fedora
+
+# Full system policy — only included when built with FSP flag
+apparmor.d/groups/_full
+
+# Experimental system states
+apparmor.d/tunables/multiarch.d/state
+
+# Provided by other packages
+man
+
+# Work in progress profiles
+apparmor.d/groups/code
+apparmor.d/groups/steam
+
+# Distro-specific
+claude
+dunst
+plasma-discover
+
+# Archlinux specific
+apparmor.d/groups/pacman
+share/libalpm
+
+# Debian specific definition
+apparmor.d/groups/apt
+
+# Ubuntu specific definition
+apparmor.d/groups/ubuntu
+
+# Profiles provided by they own package
+libvirt
+virt-aa-helper

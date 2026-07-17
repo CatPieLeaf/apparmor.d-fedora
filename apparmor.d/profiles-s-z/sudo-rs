@@ -8,7 +8,7 @@ include <tunables/global>
 
 @{exec_path} = @{bin}/sudo-rs @{lib}/cargo/bin/sudo
 
-profile sudo-rs @{exec_path} {
+profile sudo-rs @{exec_path} flags=(attach_disconnected) {
   include <abstractions/base>
   include <abstractions/app-launcher-root>
   include <abstractions/app/sudo-rs>

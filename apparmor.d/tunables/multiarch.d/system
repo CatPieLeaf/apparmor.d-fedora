@@ -14,9 +14,10 @@
 @{MOUNTS}=@{MOUNTDIRS}/*/ @{run}/user/@{uid}/gvfs/
 
 # Common places for binaries and libraries across distributions
+# Fedora: merged /usr layout — /bin and /sbin are symlinks to /usr/bin and /usr/sbin
 @{bin}=/{,usr/}bin
 @{sbin}=/{,usr/}sbin     #aa:only apt zypper
-@{sbin}=/{,usr/}{,s}bin  #aa:only pacman
+@{sbin}=/{,usr/}{,s}bin  #aa:only pacman dnf fedora
 @{lib}=/{,usr/}lib{,exec,32,64}
 
 # Common places for temporary files
@@ -55,11 +56,18 @@
 # OpenSUSE does not have the same multiarch structure
 @{multiarch}+=*-suse-linux*
 
+#aa:only fedora
+# Fedora's gcc target triplet (e.g. x86_64-redhat-linux)
+@{multiarch}+=*-redhat-linux*
+
 
 # System Internal
 # ---------------
 
-@{pci_bus}=pci@{hex4}:@{hex2}
+# Note: @{pci_bus} is defined in tunables/multiarch.d/base (shared with all
+# profiles); it used to be redeclared here too, which some apparmor_parser
+# versions reject as an "already defined" error since both files are
+# installed side by side and scanned together via tunables/multiarch.d.
 
 # Shortcut for PCI device
 @{pci_id}=@{hex4}:@{hex2}:@{hex2}.@{h}

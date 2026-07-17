@@ -34,6 +34,11 @@ profile plasma-login-wallpaper @{exec_path} {
 
   owner @{PROC}/@{pid}/task/@{tid}/comm w,
 
+  owner @{plasmalogin_cache_dirs}/plasma-login-wallpaper/ rw,
+  owner @{plasmalogin_cache_dirs}/plasma-login-wallpaper/** rwkl,
+  owner @{plasmalogin_config_dirs}/kdedefaults/* r,
+  owner @{plasmalogin_config_dirs}/kdeglobals r,
+
   include if exists <local/plasma-login-wallpaper>
 }
 
