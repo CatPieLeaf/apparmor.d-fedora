@@ -1,0 +1,52 @@
+# apparmor.d - Full set of apparmor profiles
+# Copyright (C) 2026 RakuOS <packages@rakuos.org>
+# SPDX-License-Identifier: GPL-2.0-only
+
+abi <abi/4.0>,
+
+include <tunables/global>
+
+# rakuos-software-tray (rakuos-software, crates/daemon) — long-running
+# XDG-autostarted tray daemon. Registers a StatusNotifierItem over D-Bus,
+# periodically execs `rakuos-update check`/`check-image` (unprivileged) and
+# `gnome-shell --version`, polls systemd unit states for bootc upgrade/switch
+# services, sends desktop notifications, fetches GNOME Shell extension update
+# info over HTTPS, and can spawn the main GUI frontend on demand.
+@{exec_path} = /usr/libexec/rakuos/software/rakuos-software-tray
+profile rakuos-software-tray @{exec_path} flags=(attach_disconnected,mediate_deleted) {
+  include <abstractions/base>
+  include <abstractions/bash-strict>
+  include <abstractions/nameservice-strict>
+  include <abstractions/dbus-session-strict.d>
+  include <abstractions/openssl.d>
+  include <abstractions/ssl_certs.d>
+
+  network inet stream,
+  network inet6 stream,
+
+  @{exec_path} mr,
+
+  @{bin}/rakuos-update    rPx,
+  @{bin}/gnome-shell      rix,
+  @{bin}/systemctl        rix,
+  @{bin}/rakuos-software-gtk    rPx,
+  @{bin}/rakuos-software-qt     rPx,
+  @{bin}/rakuos-software-cosmic rPx,
+
+  #aa:dbus own bus=session name=org.kde.StatusNotifierItem-*
+  #aa:dbus talk bus=session name=org.kde.StatusNotifierWatcher
+  #aa:dbus talk bus=session name=org.freedesktop.Notifications
+
+  /etc/os-release r,
+  /etc/pki/ca-trust/{,**} r,
+  /usr/share/crypto-policies/{,**} r,
+
+  owner @{HOME}/.cache/rakuos/{,**} rw,
+
+  @{PROC}/@{pid}/cmdline r,
+  @{PROC}/@{pid}/status r,
+
+  include if exists <local/rakuos-software-tray>
+}
+
+# vim:syntax=apparmor

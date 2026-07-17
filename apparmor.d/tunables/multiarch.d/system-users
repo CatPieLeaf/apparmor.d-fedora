@@ -30,6 +30,21 @@
 
 # } else if "kde" in @{DE} {
 
+  # Full path of the plasma-login-manager configuration directories
+  @{PLASMALOGIN_HOME}=/var/lib/plasmalogin
+  @{plasmalogin_cache_dirs}=@{PLASMALOGIN_HOME}/.cache/
+  @{plasmalogin_config_dirs}=@{PLASMALOGIN_HOME}/.config/
+  @{plasmalogin_local_dirs}=@{PLASMALOGIN_HOME}/.local/
+  @{plasmalogin_share_dirs}=@{PLASMALOGIN_HOME}/.local/share/
+  @{plasmalogin_state_dirs}=@{PLASMALOGIN_HOME}/.local/state/
+
+  @{DESKTOP_HOME}+=@{PLASMALOGIN_HOME}
+  @{desktop_cache_dirs}+=@{plasmalogin_cache_dirs}
+  @{desktop_config_dirs}+=@{plasmalogin_config_dirs}
+  @{desktop_local_dirs}+=@{plasmalogin_local_dirs}
+  @{desktop_share_dirs}+=@{plasmalogin_share_dirs}
+  @{desktop_state_dirs}+=@{plasmalogin_state_dirs}
+
   # Full path of the SDDM configuration directories
   @{SDDM_HOME}=/var/lib/sddm/ /var/lib/plasmalogin
   @{sddm_cache_dirs}=@{SDDM_HOME}/.cache/

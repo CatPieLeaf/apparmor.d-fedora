@@ -1,0 +1,50 @@
+# apparmor.d - Full set of apparmor profiles
+# Copyright (C) 2026 RakuOS <packages@rakuos.org>
+# SPDX-License-Identifier: GPL-2.0-only
+
+abi <abi/4.0>,
+
+include <tunables/global>
+
+# rakuos-install (rakuos-core, crates/pkgmgr/src/bin/install.rs) — installs
+# packages into the writable /usr overlay via dnf5.real, invoked from
+# `rakupkg install` (which is what /usr/bin/dnf5's wrapper execs for
+# `dnf5 install`).
+@{exec_path} = /usr/libexec/rakuos/rakuos-install
+profile rakuos-install @{exec_path} flags=(attach_disconnected,mediate_deleted) {
+  include <abstractions/base>
+  include <abstractions/bash-strict>
+  include <abstractions/nameservice-strict>
+
+  capability chown,
+  capability dac_override,
+  capability dac_read_search,
+  capability fowner,
+  capability fsetid,
+  capability sys_admin,
+
+  @{exec_path} mr,
+
+  @{bin}/rpm      rPx,
+  @{bin}/dnf5.real rPx,
+  @{bin}/mount    rPx,
+
+  /etc/dnf/{,**} r,
+  /etc/yum.repos.d/{,**} r,
+  /usr/share/rakuos/{,**} r,
+
+  /var/lib/rakuos/{,**} rwk,
+  /var/lib/rakuos/overlay/upper/{,**} rwk,
+  /var/lib/rakuos/overlay/work/{,**} rwk,
+  /var/lib/rakuos/local-rpms/{,**} rwk,
+
+  /run/rakuos-overlay.lock rwk,
+
+  @{PROC}/@{pid}/mounts r,
+  @{PROC}/mounts r,
+  @{PROC}/filesystems r,
+
+  include if exists <local/rakuos-install>
+}
+
+# vim:syntax=apparmor

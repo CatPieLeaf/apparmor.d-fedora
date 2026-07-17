@@ -73,6 +73,7 @@ profile plasmalogin-helper @{exec_path} flags=(attach_disconnected) {
   /var/lib/lastlog/ r,
   /var/lib/lastlog/* rwk,
 
+  owner @{PLASMALOGIN_HOME}/ rw,
   owner @{SDDM_HOME}/ rw,
 
   owner @{user_share_dirs}/kwalletd/ rw,

@@ -1,0 +1,28 @@
+# apparmor.d - Full set of apparmor profiles
+# Copyright (C) 2026 RakuOS <packages@rakuos.org>
+# SPDX-License-Identifier: GPL-2.0-only
+
+abi <abi/4.0>,
+
+include <tunables/global>
+
+# rakuos-welcome (rakuos-welcome, data/rakuos-welcome) — thin dispatcher script
+# that detects the running desktop (via $XDG_CURRENT_DESKTOP or --ui=) and
+# execs the matching DE-specific frontend binary. No privileged work itself.
+@{exec_path} = /usr/bin/rakuos-welcome
+profile rakuos-welcome @{exec_path} flags=(attach_disconnected,mediate_deleted) {
+  include <abstractions/base>
+  include <abstractions/bash-strict>
+
+  @{exec_path} r,
+
+  @{bin}/rakuos-welcome-gtk    rPx,
+  @{bin}/rakuos-welcome-qt     rPx,
+  @{bin}/rakuos-welcome-cosmic rPx,
+
+  @{PROC}/@{pid}/cmdline r,
+
+  include if exists <local/rakuos-welcome>
+}
+
+# vim:syntax=apparmor

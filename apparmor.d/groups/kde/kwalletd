@@ -30,6 +30,8 @@ profile kwalletd @{exec_path} {
 
   /usr/share/color-schemes/{,**} r,
 
+  /etc/crypto-policies/back-ends/gnutls.config r,
+
   /etc/machine-id r,
   /var/lib/dbus/machine-id r,
 

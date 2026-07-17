@@ -1,0 +1,76 @@
+# apparmor.d - Full set of apparmor profiles
+# Copyright (C) 2026 RakuOS <packages@rakuos.org>
+# SPDX-License-Identifier: GPL-2.0-only
+
+abi <abi/4.0>,
+
+include <tunables/global>
+
+# rakuos-welcome-qt (rakuos-welcome, crates/welcome-qt + shared welcome-setup/
+# appstream/geonames crates) — Qt6/QML first-login wizard. Same privilege
+# model as rakuos-welcome-gtk: pkexec for locale/keyboard/timezone, sudo-rs
+# for package install/remove and `bootc status`. Unlike the GTK frontend it
+# does not fetch remote icons over HTTP — appstream/local icons only.
+@{exec_path} = /usr/libexec/rakuos/rakuos-welcome-qt
+profile rakuos-welcome-qt @{exec_path} flags=(attach_disconnected,mediate_deleted) {
+  include <abstractions/base>
+  include <abstractions/bash-strict>
+  include <abstractions/nameservice-strict>
+  include <abstractions/qt5.d>
+  include <abstractions/fonts-strict>
+  include <abstractions/freedesktop.org.d>
+
+  @{exec_path} mr,
+
+  @{bin}/locale     rix,
+  @{bin}/pkexec     rCx -> pkexec,
+  @{bin}/sudo-rs    rCx -> sudo,
+  @{bin}/nmcli      rPx,
+
+  /usr/share/rakuos-welcome/{,**} r,
+  /usr/share/rakuos-welcome-qt/{,**} r,
+  /usr/share/rakuos/appstream/{,**} r,
+  /usr/share/swcatalog/xml/{,**} r,
+  /usr/share/app-info/xmls/{,**} r,
+  /var/cache/app-info/xmls/{,**} r,
+  /usr/share/metainfo/{,**} r,
+  /usr/share/appdata/{,**} r,
+  /var/lib/flatpak/appstream/{,**} r,
+  /var/lib/flatpak/app/{,**} r,
+  /usr/share/icons/hicolor/{,**} r,
+  /usr/share/pixmaps/{,**} r,
+  /etc/os-release r,
+
+  owner @{HOME}/.local/share/flatpak/appstream/{,**} r,
+  owner @{user_config_dirs}/rakuos/welcome-done rw,
+
+  @{PROC}/@{pid}/cmdline r,
+  @{PROC}/@{pid}/status r,
+
+  profile pkexec {
+    include <abstractions/base>
+    include <abstractions/app/pkexec>
+
+    include if exists <local/rakuos-welcome-qt_pkexec>
+  }
+
+  profile sudo {
+    include <abstractions/base>
+    include <abstractions/authentication.d>
+    include <abstractions/nameservice-strict>
+
+    capability setuid,
+    capability setgid,
+
+    @{bin}/sudo-rs mr,
+    @{bin}/bootc          rPx,
+    @{bin}/rakuos-install rPx,
+    @{bin}/rakuos-remove  rPx,
+
+    include if exists <local/rakuos-welcome-qt_sudo>
+  }
+
+  include if exists <local/rakuos-welcome-qt>
+}
+
+# vim:syntax=apparmor

@@ -1,0 +1,83 @@
+# apparmor.d - Full set of apparmor profiles
+# Copyright (C) 2026 RakuOS <packages@rakuos.org>
+# SPDX-License-Identifier: GPL-2.0-only
+
+abi <abi/4.0>,
+
+include <tunables/global>
+
+# rakuos-welcome-gtk (rakuos-welcome, crates/welcome-gtk + shared welcome-setup/
+# appstream/geonames crates) — GTK4/libadwaita first-login wizard. Runs
+# unprivileged as the logged-in user; locale/keyboard/timezone changes are
+# escalated per-action via pkexec to localectl/timedatectl, package install/
+# remove and image-status checks via sudo-rs to rakuos-install/remove and
+# `bootc status`. geonames city/timezone lookup is a bundled offline blob, no
+# network. Only this frontend fetches remote app icons over HTTPS via curl.
+@{exec_path} = /usr/libexec/rakuos/rakuos-welcome-gtk
+profile rakuos-welcome-gtk @{exec_path} flags=(attach_disconnected,mediate_deleted) {
+  include <abstractions/base>
+  include <abstractions/bash-strict>
+  include <abstractions/nameservice-strict>
+  include <abstractions/gtk-strict>
+  include <abstractions/fonts-strict>
+  include <abstractions/freedesktop.org.d>
+  include <abstractions/openssl.d>
+  include <abstractions/ssl_certs.d>
+
+  network inet stream,
+  network inet6 stream,
+
+  @{exec_path} mr,
+
+  @{bin}/locale     rix,
+  @{bin}/pkexec     rCx -> pkexec,
+  @{bin}/sudo-rs    rCx -> sudo,
+  @{bin}/nmcli      rPx,
+  @{bin}/curl       rPx,
+
+  /usr/share/rakuos-welcome/{,**} r,
+  /usr/share/rakuos/appstream/{,**} r,
+  /usr/share/swcatalog/xml/{,**} r,
+  /usr/share/app-info/xmls/{,**} r,
+  /var/cache/app-info/xmls/{,**} r,
+  /usr/share/metainfo/{,**} r,
+  /usr/share/appdata/{,**} r,
+  /var/lib/flatpak/appstream/{,**} r,
+  /var/lib/flatpak/app/{,**} r,
+  /usr/share/icons/hicolor/{,**} r,
+  /usr/share/pixmaps/{,**} r,
+  /etc/os-release r,
+
+  owner @{HOME}/.local/share/flatpak/appstream/{,**} r,
+  owner @{user_config_dirs}/rakuos/welcome-done rw,
+
+  @{PROC}/@{pid}/cmdline r,
+  @{PROC}/@{pid}/status r,
+
+  profile pkexec {
+    include <abstractions/base>
+    include <abstractions/app/pkexec>
+
+    include if exists <local/rakuos-welcome-gtk_pkexec>
+  }
+
+  profile sudo {
+    include <abstractions/base>
+    include <abstractions/authentication.d>
+    include <abstractions/nameservice-strict>
+
+    capability setuid,
+    capability setgid,
+
+    @{bin}/sudo-rs mr,
+    @{bin}/bootc          rPx,
+    @{bin}/rakuos-install rPx,
+    @{bin}/rakuos-remove  rPx,
+
+    include if exists <local/rakuos-welcome-gtk_sudo>
+  }
+
+  include if exists <local/rakuos-welcome-gtk>
+}
+
+# vim:syntax=apparmor
