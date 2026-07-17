@@ -18,8 +18,9 @@ profile fapp flags=(attach_disconnected,mediate_deleted) {
   include <abstractions/base>
   include <abstractions/app/flatpak>
 
+  userns,
+
   deny @{att}/ r,
-  deny @{att}@{run}/.userns r,
 
   include if exists <local/fapp>
 }

@@ -52,13 +52,13 @@
 
 # The OS family. Supported family values are: apt, pacman, zypper
 # It is a preferred way to check for the distribution.
-@{OS_FAMILY} = pacman
+@{OS_FAMILY} = dnf
 
 # The OS ID. It is the value of the ID field in /etc/os-release.
-@{OS_ID} = arch
+@{OS_ID} = fedora
 
 # The OS version. It is the value of the VERSION_ID field in /etc/os-release.
-@{OS_VERSION_ID} = rolling
+@{OS_VERSION_ID} = 44
 
 
 # Desktop
@@ -66,11 +66,11 @@
 
 # The list of desktop environments installed on the system.
 # Supported values are: gnome, kde, xfce, cosmic, none
-@{DE} = gnome
+@{DE} = gnome kde cosmic
 
 # The list of display managers installed on the system.
 # Supported values are: gdm, sddm, lightdm, none
-@{DM} = gdm
+@{DM} = gdm plasma-login-manager cosmic-greeter
 
 # The display server in use.
 # Supported values are: wayland, x11, none
@@ -82,7 +82,7 @@
 
 # The list of GPU vendors. Only nvidia matters as it is the only one non standard.
 # Supported values are: nvidia, amd, intel, none
-@{GPU} = nvidia
+@{GPU} = amd intel nvidia
 
 # Sysctl
 # ------

@@ -10,7 +10,7 @@ include <tunables/global>
 @{profile_dbus} = xdg-dbus-proxy
 
 @{exec_path} = @{bin}/bwrap
-profile fbwrap flags=(attach_disconnected,mediate_deleted) {
+profile fbwrap flags=(complain,attach_disconnected,mediate_deleted) {
   include <abstractions/base>
   include <abstractions/app/flatpak>
   include <abstractions/bwrap>
@@ -42,16 +42,11 @@ profile fbwrap flags=(attach_disconnected,mediate_deleted) {
              @{sbin}/ldconfig                         Cx -> &fbwrap//ldconfig,
              @{bin}/xdg-dbus-proxy                    Px -> fbwrap//&xdg-dbus-proxy,
 
-  #aa:only apparmor>=4.1
-  #aa:only apparmor<5.0
   priority=2 @{lib}/glycin-loaders/@{d}+/glycin-*     Px -> fbwrap//&glycin//loaders,
 
-  #aa:only apparmor>=5.0
-  priority=2 @{lib}/glycin-loaders/@{d}+/glycin-*     Px -> fbwrap//&:glycin:loaders,
-
-  priority=1 /app/bin/**                              Px -> fbwrap//&fapp,
-  priority=1 @{lib}/**                                Px -> fbwrap//&fapp,
-  priority=1 @{HOME}/.var/app/@{appid}/**             Px -> fbwrap//&fapp,
+  priority=1 /app/bin/**                              Px -> fbwrap//fapp,
+  priority=1 @{lib}/**                                Px -> fbwrap//fapp,
+  priority=1 @{HOME}/.var/app/@{appid}/**             Px -> fbwrap//fapp,
 
   /usr/share/flatpak/triggers/desktop-database.trigger Px -> flatpak-system-helper//bwrap,
   /usr/share/flatpak/triggers/gtk-icon-cache.trigger   Px -> flatpak-system-helper//bwrap,
@@ -80,7 +75,7 @@ profile fbwrap flags=(attach_disconnected,mediate_deleted) {
         @{PROC}/cgroups r,
   owner @{PROC}/@{pid}/coredump_filter rw,
 
-  profile ldconfig flags=(attach_disconnected,mediate_deleted) {
+  profile ldconfig flags=(complain,attach_disconnected,mediate_deleted) {
     include <abstractions/base>
     include <abstractions/consoles>
 

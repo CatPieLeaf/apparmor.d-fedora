@@ -11,7 +11,6 @@ include <tunables/global>
 @{share_dirs}  = /usr/share/gnome-shell/extensions/
 @{share_dirs} += @{user_share_dirs}/gnome-shell/extensions/
 
-@{exec_path} = @{bin}/gjs-console
 profile gnome-extension {
   include <abstractions/base>
   include <abstractions/accessibility>
@@ -32,7 +31,7 @@ profile gnome-extension {
        member=Introspect
        peer=(name=org.freedesktop.DBus, label="@{p_dbus_session}"),
 
-  @{exec_path} mr,
+  @{bin}/gjs-console mr,
 
   # Used to track the extensions supported by this profile
   @{share_dirs}/tilingshell@ferrarodomenico.com/*.js r,
