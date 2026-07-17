@@ -39,7 +39,7 @@ func (p Configure) Apply() ([]string, error) {
 	res := []string{}
 
 	switch tasks.Distribution {
-	case "arch", "opensuse":
+	case "arch", "opensuse", "fedora":
 
 	case "ubuntu":
 		if err := prebuild.DebianHide.Init(); err != nil {
