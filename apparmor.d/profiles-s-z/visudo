@@ -6,8 +6,9 @@ abi <abi/4.0>,
 
 include <tunables/global>
 
-# visudo is an alternatives symlink (→ visudo-rs by default on RakuOS).
-# gnu_visudo is the og sudo package's visudo binary.
+# visudo may be an alternatives symlink to visudo-rs on systems that use it.
+# gnu_visudo is the original sudo package's visudo binary, kept as an
+# alternate name where both are installed side by side.
 @{exec_path} = @{bin}/visudo @{bin}/visudo-rs @{bin}/gnu_visudo
 profile visudo @{exec_path} flags=(attach_disconnected) {
   include <abstractions/base>

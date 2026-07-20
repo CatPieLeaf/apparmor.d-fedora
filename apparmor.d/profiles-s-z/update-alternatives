@@ -17,15 +17,21 @@ profile update-alternatives @{exec_path} {
   @{exec_path} mr,
 
   @{bin}/* w,
+  @{bin}/*.dpkg-tmp rw,
   @{lib}/firmware/* rw,
 
   /usr/** rw,
 
+  /etc/**.dpkg-tmp rw,
+  /etc/pam.d/gdm-smartcard w,
   /etc/alternatives/* rw,
 
-  /var/lib/alternatives/ r,
-  /var/lib/alternatives/* rw,
+  /var/lib/dpkg/alternatives/ r,
+  /var/lib/dpkg/alternatives/* rw,
   /var/log/alternatives.log w,
+
+  owner /var/lib/alternatives/ r,
+  owner /var/lib/alternatives/* rw,
 
   include if exists <local/update-alternatives>
 }

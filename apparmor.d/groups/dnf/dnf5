@@ -1,4 +1,5 @@
 # apparmor.d - Full set of apparmor profiles
+# Copyright (C) 2025-2026 Alexandre Pujol <alexandre@pujol.io>
 # Copyright (C) 2026 RakuOS <packages@rakuos.org>
 # SPDX-License-Identifier: GPL-2.0-only
 
@@ -6,10 +7,6 @@ abi <abi/4.0>,
 
 include <tunables/global>
 
-# Covers both the upstream dnf5 ELF binary (/usr/bin/dnf5 on stock Fedora) and
-# RakuOS's renamed real binary (/usr/bin/dnf5.real, with /usr/bin/dnf5 itself
-# being a thin wrapper script that routes install/update/remove to `rakupkg`
-# and everything else straight through here).
 @{exec_path} = @{bin}/dnf5{,.real}
 profile dnf5 @{exec_path} flags=(attach_disconnected,mediate_deleted) {
   include <abstractions/base>

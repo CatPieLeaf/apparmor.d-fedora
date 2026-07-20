@@ -7,9 +7,9 @@ abi <abi/4.0>,
 include <tunables/global>
 
 # Covers both the legacy python-based dnf4 (still shipped upstream on some
-# distros) and RakuOS's /usr/bin/dnf, which is just a two-line wrapper that
-# execs dnf5. /usr/bin/dnf.real, /usr/bin/microdnf and /usr/bin/yum are all
-# symlinks resolving to the same real binary, so they attach here too.
+# distros) and any thin /usr/bin/dnf wrapper that just execs dnf5.
+# /usr/bin/dnf.real, /usr/bin/microdnf and /usr/bin/yum are all symlinks
+# resolving to the same real binary, so they attach here too.
 @{exec_path} = @{bin}/dnf{,.real}
 profile dnf @{exec_path} flags=(attach_disconnected,mediate_deleted) {
   include <abstractions/base>
@@ -40,7 +40,7 @@ profile dnf @{exec_path} flags=(attach_disconnected,mediate_deleted) {
 
   @{exec_path} mr,
 
-  # RakuOS's dnf wrapper just execs dnf5, which owns the real privileges.
+  # A thin /usr/bin/dnf wrapper, where present, just execs dnf5.
   @{sh_path} rix,
   @{bin}/dnf5{,.real} rPx,
   @{bin}/rpm            rPx,
