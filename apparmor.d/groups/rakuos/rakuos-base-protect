@@ -1,0 +1,44 @@
+# apparmor.d - Full set of apparmor profiles
+# Copyright (C) 2026 RakuOS <packages@rakuos.org>
+# SPDX-License-Identifier: GPL-2.0-only
+
+abi <abi/4.0>,
+
+include <tunables/global>
+
+# rakuos-base-protect (rakuos-core, crates/pkgmgr/src/bin/base_protect.rs) —
+# root daemon that inotify-watches the overlay upper dir and immediately
+# removes any file/whiteout that would shadow or delete a base /usr file not
+# owned by the active overlay operation, then notifies logged-in users via
+# sudo-rs -u <uid> notify-send (falling back to a pending-notify file if no
+# user session bus is reachable).
+@{exec_path} = /usr/libexec/rakuos/rakuos-base-protect
+profile rakuos-base-protect @{exec_path} flags=(attach_disconnected,mediate_deleted) {
+  include <abstractions/base>
+  include <abstractions/bash-strict>
+
+  capability dac_override,
+  capability fowner,
+  capability sys_ptrace,
+
+  @{exec_path} mr,
+
+  @{bin}/touch    rPx,
+  @{bin}/sudo-rs  rPx,
+
+  /usr/share/rakuos/base-manifest.txt r,
+
+  /var/lib/rakuos/overlay/upper/{,**} rw,
+  /var/lib/rakuos/overlay.lock r,
+  /run/rakuos-overlay.lock r,
+  /run/rakuos-base-protect-pending rw,
+  /var/lib/rakuos/update-notify.pending w,
+
+  /run/user/[0-9]*/bus r,
+
+  @{PROC}/@{pid}/mounts r,
+
+  include if exists <local/rakuos-base-protect>
+}
+
+# vim:syntax=apparmor

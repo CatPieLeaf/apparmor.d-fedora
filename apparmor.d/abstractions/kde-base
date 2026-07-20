@@ -18,11 +18,9 @@
   /etc/xdg/kdeglobals r,
   /etc/xdg/kwinrc r,
 
-  # Fedora KDE spin's system-wide default profile (from the kde-settings
-  # package, which only exists on Fedora) - not covered by any upstream
-  # apparmor.d rule, silently denied for every KDE process that falls back
-  # to it (kwalletd, kwin_wayland, plasmashell, etc.).
-  #aa:only fedora
+  # Fedora KDE spin's system-wide default profile - not covered by any
+  # upstream apparmor.d rule, silently denied for every KDE process that
+  # falls back to it (kwalletd, kwin_wayland, plasmashell, etc.).
   /usr/share/kde-settings/kde-profile/default/xdg/kdeglobals r,
   /usr/share/kde-settings/kde-profile/default/xdg/kcminputrc r,
   /usr/share/kde-settings/kde-profile/default/xdg/kwinrc r,
@@ -54,7 +52,6 @@
   owner @{user_config_dirs}/kdedefaults/kdeglobals r,
   owner @{user_config_dirs}/kdedefaults/kwinrc r,
   owner @{user_config_dirs}/kdeglobals r,
-  owner @{user_config_dirs}/klanguageoverridesrc r,
   owner @{user_config_dirs}/kwinrc r,
   owner @{user_config_dirs}/session/ rw,
   owner @{user_config_dirs}/session/* rwlk,

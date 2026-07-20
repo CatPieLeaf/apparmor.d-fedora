@@ -162,11 +162,6 @@ profile sddm @{exec_path} flags=(attach_disconnected,mediate_deleted) {
   owner @{plasmalogin_cache_dirs}/sddm-greeter/qmlcache/*.jsc mrw,
   owner @{plasmalogin_cache_dirs}/sddm-greeter/qmlcache/*.qmlc mrw,
 
-        @{SDDM_HOME}/state.conf rw,
-  owner @{SDDM_HOME}/** rw,
-  owner @{sddm_cache_dirs}/sddm-greeter/qmlcache/*.jsc mrw,
-  owner @{sddm_cache_dirs}/sddm-greeter/qmlcache/*.qmlc mrw,
-
   owner @{HOME}/ r,
   owner @{HOME}/.local/ w,
   owner @{HOME}/.Xauthority rw,

@@ -14,16 +14,6 @@
   signal send set=kill peer=glycin,
   priority=-1 @{bin}/bwrap  Px -> glycin,
 
-  #aa:exclude ubuntu
-  #aa:only apparmor>=5.0
-  # Need to be allowed for all peer because from the host namespace we do not
-  # see the glycin namespace. This is showned by 'peer=(label=---)' in the logs.
-  #
-  # As of today, we cannot specify the ns scope and view of the peer.
-  # See: https://gitlab.com/apparmor/apparmor/-/wikis/AppArmorPolicyView
-  unix (send receive) type=seqpacket, # peer=(label=---), # file_inherit
-  unix (send receive) type=stream, # peer=(label=---), # file_inherit
-  priority=-10 @{bin}/bwrap  Px -> :glycin:bwrap,
 
   @{lib}/{,@{multiarch}/}gtk*/** mr,
 

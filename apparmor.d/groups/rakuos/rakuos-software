@@ -1,0 +1,34 @@
+# apparmor.d - Full set of apparmor profiles
+# Copyright (C) 2026 RakuOS <packages@rakuos.org>
+# SPDX-License-Identifier: GPL-2.0-only
+
+abi <abi/4.0>,
+
+include <tunables/global>
+
+# rakuos-software (rakuos-software, resources/rakuos-software) — wrapper
+# script: creates ~/.cache/rakuos, does a background "warmup" launch of
+# whichever frontend is installed (gtk/qt/cosmic priority order), kills the
+# warmup + any running tray daemon, then execs the real frontend.
+@{exec_path} = /usr/bin/rakuos-software
+profile rakuos-software @{exec_path} flags=(attach_disconnected,mediate_deleted) {
+  include <abstractions/base>
+  include <abstractions/bash-strict>
+
+  @{exec_path} r,
+
+  @{bin}/rakuos-software-gtk    rPx,
+  @{bin}/rakuos-software-qt     rPx,
+  @{bin}/rakuos-software-cosmic rPx,
+  @{bin}/pkill                  rix,
+  @{bin}/sleep                  rix,
+
+  owner @{HOME}/.cache/rakuos/ rw,
+  owner @{HOME}/.cache/rakuos/software-warmed rwk,
+
+  @{PROC}/@{pid}/cmdline r,
+
+  include if exists <local/rakuos-software>
+}
+
+# vim:syntax=apparmor

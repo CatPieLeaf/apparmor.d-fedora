@@ -14,11 +14,10 @@
 @{MOUNTS}=@{MOUNTDIRS}/*/ @{run}/user/@{uid}/gvfs/
 
 # Common places for binaries and libraries across distributions
-# Fedora: merged /usr layout — /bin and /sbin are symlinks to /usr/bin and /usr/sbin
+# RakuOS/Fedora: merged /usr layout — /bin and /sbin are symlinks to /usr/bin and /usr/sbin
 @{bin}=/{,usr/}bin
-@{sbin}=/{,usr/}sbin     #aa:only apt zypper
-@{sbin}=/{,usr/}{,s}bin  #aa:only pacman dnf fedora
-@{lib}=/{,usr/}lib{,exec,32,64}
+@{sbin}=/{,usr/}{,s}bin
+@{lib}=/{,usr/}lib{,exec,64}
 
 # Common places for temporary files
 # /tmp/user/@{uid}/ is needed when using .... (default on Debian)
@@ -52,15 +51,8 @@
 # Semantic version
 @{version}=@{u16}{.@{u16},}{.@{u16},}{{-,_}@{rand},}
 
-#aa:only opensuse
-# OpenSUSE does not have the same multiarch structure
-@{multiarch}+=*-suse-linux*
-
-
 # System Internal
 # ---------------
-
-@{pci_bus}=pci@{hex4}:@{hex2}
 
 # Shortcut for PCI device
 @{pci_id}=@{hex4}:@{hex2}:@{hex2}.@{h}

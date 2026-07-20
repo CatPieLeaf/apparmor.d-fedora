@@ -49,8 +49,7 @@ profile gnome-software @{exec_path} flags=(attach_disconnected,mediate_deleted) 
   @{exec_path} mr,
 
   @{bin}/baobab              rPUx,
-  @{bin}/bwrap               rPx -> flatpak-app, #aa:only apparmor<4.1
-  @{bin}/bwrap               rPx -> fbwrap,      #aa:only apparmor>=4.1
+  @{bin}/bwrap               rPx -> fbwrap,
   @{bin}/fusermount{,3}      rCx -> fusermount,
   @{bin}/gnome-control-center rPx,
   @{bin}/gpg{,2}             rCx -> gpg,

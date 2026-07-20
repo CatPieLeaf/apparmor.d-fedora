@@ -1,0 +1,28 @@
+# apparmor.d - Full set of apparmor profiles
+# Copyright (C) 2026 RakuOS <packages@rakuos.org>
+# SPDX-License-Identifier: GPL-2.0-only
+
+abi <abi/4.0>,
+
+include <tunables/global>
+
+# rakupkg (rakuos-core, crates/pkgmgr/src/bin/rakupkg.rs) — user-facing
+# dispatcher for install/update/remove/list/upgrade/system-upgrade. Invoked
+# directly by users and by dnf5's wrapper script (dnf5/dnf install|update|
+# remove -> rakupkg). Execs the per-command helpers under /usr/libexec/rakuos/
+# by absolute path and nothing else.
+@{exec_path} = @{bin}/rakupkg
+profile rakupkg @{exec_path} flags=(attach_disconnected,mediate_deleted) {
+  include <abstractions/base>
+
+  @{exec_path} mr,
+
+  /usr/libexec/rakuos/rakuos-install rPx,
+  /usr/libexec/rakuos/rakuos-remove  rPx,
+  /usr/libexec/rakuos/rakuos-update  rPx,
+  /usr/libexec/rakuos/rakuos-list    rPx,
+
+  include if exists <local/rakupkg>
+}
+
+# vim:syntax=apparmor

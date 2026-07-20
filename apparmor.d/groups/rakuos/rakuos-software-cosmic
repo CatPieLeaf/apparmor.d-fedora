@@ -1,0 +1,85 @@
+# apparmor.d - Full set of apparmor profiles
+# Copyright (C) 2026 RakuOS <packages@rakuos.org>
+# SPDX-License-Identifier: GPL-2.0-only
+
+abi <abi/4.0>,
+
+include <tunables/global>
+
+# rakuos-software-cosmic (rakuos-software, crates/ui-cosmic + shared
+# crates/backend/*) — libcosmic app store frontend. Same privilege model and
+# network/package surface as rakuos-software-gtk/-qt: pkexec for prompted
+# flatpak/rpm/bootc-switch-rollback mutations, sudo-rs (NOPASSWD) for bootc
+# status/upgrade and rakuos-update.
+@{exec_path} = /usr/libexec/rakuos/software/rakuos-software-cosmic
+profile rakuos-software-cosmic @{exec_path} flags=(attach_disconnected,mediate_deleted) {
+  include <abstractions/base>
+  include <abstractions/bash-strict>
+  include <abstractions/nameservice-strict>
+  include <abstractions/fonts-strict>
+  include <abstractions/freedesktop.org.d>
+  include <abstractions/openssl.d>
+  include <abstractions/ssl_certs.d>
+
+  network inet stream,
+  network inet6 stream,
+
+  @{exec_path} mr,
+
+  @{bin}/rpm            rix,
+  @{bin}/flatpak        rPx,
+  @{bin}/pkexec         rCx -> pkexec,
+  @{bin}/sudo-rs        rCx -> sudo,
+  @{bin}/unzip          rix,
+  @{bin}/7z{,z}         rix,
+  @{bin}/tar            rix,
+  @{bin}/timeout        rix,
+  @{bin}/update-desktop-database rix,
+  @{bin}/curl           rix,
+  @{bin}/fwupdmgr       rPx,
+  @{bin}/podman         rPx,
+
+  /etc/os-release r,
+  /etc/pki/ca-trust/{,**} r,
+  /usr/share/crypto-policies/{,**} r,
+  /usr/share/rakuos/appstream/{,**} r,
+  /var/cache/app-info/xmls/{,**} r,
+  /var/lib/rakuos/packages.list r,
+  /var/lib/rakuos/packages-rpm.list r,
+  /var/lib/rakuos/overlay.state r,
+  /var/lib/rakuos/overlay.dirty r,
+  /var/lib/dbus/machine-id r,
+
+  owner @{HOME}/.cache/rakuos/{,**} rw,
+  owner @{HOME}/.local/share/rakuos/appimages/{,**} rw,
+  owner @{HOME}/.local/share/rakuos/webapps/{,**} rw,
+
+  @{PROC}/@{pid}/cmdline r,
+  @{PROC}/@{pid}/status r,
+
+  profile pkexec {
+    include <abstractions/base>
+    include <abstractions/app/pkexec>
+
+    include if exists <local/rakuos-software-cosmic_pkexec>
+  }
+
+  profile sudo {
+    include <abstractions/base>
+    include <abstractions/authentication.d>
+    include <abstractions/nameservice-strict>
+
+    capability setuid,
+    capability setgid,
+
+    @{bin}/sudo-rs mr,
+    @{bin}/bootc          rPx,
+    @{bin}/rakuos-update  rPx,
+
+    include if exists <local/rakuos-software-cosmic_sudo>
+  }
+
+  include if exists <local/rakuos-software-cosmic>
+}
+
+# vim:syntax=apparmor

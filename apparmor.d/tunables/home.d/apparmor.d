@@ -4,16 +4,13 @@
 # Copyright (C) 2026 RakuOS <packages@rakuos.org>
 # SPDX-License-Identifier: GPL-2.0-only
 
-#aa:only fedora
-# Fedora Atomic (Silverblue/Kinoite/uCore/bootc-based) images keep real user
-# home directories at /var/home/<user>/, not /home/<user>/. Stock apparmor's
-# tunables/home only defines @{HOMEDIRS} as /home/, so @{HOME} (and everything
-# derived from it: @{user_config_dirs}, @{user_cache_dirs}, etc.) never
-# matches the real live path on those images - silently breaking owner rules
-# across every profile in this project even though /home is a symlink to
-# /var/home (AppArmor matches the resolved path, not through the symlink).
-# Harmless no-op on non-atomic Fedora, so gated to the whole fedora family
-# rather than needing a separate atomic-only tag.
+# RakuOS (ostree/bootc) keeps real user home directories at /var/home/<user>/,
+# not /home/<user>/. Stock apparmor's tunables/home only defines @{HOMEDIRS}
+# as /home/, so @{HOME} (and everything derived from it: @{user_config_dirs},
+# @{user_cache_dirs}, etc.) never matches the real live path on RakuOS -
+# silently breaking owner rules across every profile in this project even
+# though /home is a symlink to /var/home (AppArmor matches the resolved path,
+# not through the symlink).
 @{HOMEDIRS}+=/var/home/
 
 # To allow extended personalisation by the user without breaking everything.

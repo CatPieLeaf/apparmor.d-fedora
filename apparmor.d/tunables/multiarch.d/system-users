@@ -45,21 +45,6 @@
   @{desktop_share_dirs}+=@{plasmalogin_share_dirs}
   @{desktop_state_dirs}+=@{plasmalogin_state_dirs}
 
-  # Full path of the SDDM configuration directories
-  @{SDDM_HOME}=/var/lib/sddm/ /var/lib/plasmalogin
-  @{sddm_cache_dirs}=@{SDDM_HOME}/.cache/
-  @{sddm_config_dirs}=@{SDDM_HOME}/.config/
-  @{sddm_local_dirs}=@{SDDM_HOME}/.local/
-  @{sddm_share_dirs}=@{SDDM_HOME}/.local/share/
-  @{sddm_state_dirs}=@{SDDM_HOME}/.local/state/
-
-  @{DESKTOP_HOME}+=@{SDDM_HOME}
-  @{desktop_cache_dirs}+=@{sddm_cache_dirs}
-  @{desktop_config_dirs}+=@{sddm_config_dirs}
-  @{desktop_local_dirs}+=@{sddm_local_dirs}
-  @{desktop_share_dirs}+=@{sddm_share_dirs}
-  @{desktop_state_dirs}+=@{sddm_state_dirs}
-
 # } else if "xfce" in @{DE} {
 
   # Full path of the LIGHTDM configuration directories

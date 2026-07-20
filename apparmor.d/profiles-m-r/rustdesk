@@ -57,11 +57,6 @@ profile rustdesk @{exec_path} {
   owner @{plasmalogin_share_dirs}/logs/[rR]ust[dD]esk/{,**} rw,
   owner @{plasmalogin_config_dirs}/[rR]ust[dD]esk/{,**} rw,
 
-
-  owner @{sddm_share_dirs}/logs/ w,
-  owner @{sddm_share_dirs}/logs/[rR]ust[dD]esk/{,**} rw,
-  owner @{sddm_config_dirs}/[rR]ust[dD]esk/{,**} rw,
-
   @{sys}/devices/system/cpu/cpufreq/policy@{int}/scaling_{cur,min,max}_freq r,
   @{sys}/devices/@{pci}/net/*/address r,
   @{sys}/fs/cgroup/user.slice/cpu.max r,

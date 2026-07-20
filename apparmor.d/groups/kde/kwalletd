@@ -30,9 +30,6 @@ profile kwalletd @{exec_path} {
 
   /usr/share/color-schemes/{,**} r,
 
-  # crypto-policies is a Fedora/RHEL-specific package (system-wide crypto
-  # policy backend configs) that doesn't exist on other distros.
-  #aa:only fedora
   /etc/crypto-policies/back-ends/gnutls.config r,
 
   /etc/machine-id r,

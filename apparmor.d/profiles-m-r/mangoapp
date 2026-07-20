@@ -1,5 +1,5 @@
 # apparmor.d - Full set of apparmor profiles
-# Copyright (C) 2026 RakuOS <packages@rakuos.org>
+# Copyright (C) 2026 RakuOS
 # SPDX-License-Identifier: GPL-2.0-only
 
 # MangoHud itself is a Vulkan/OpenGL layer (mangohud.so) preloaded into the
