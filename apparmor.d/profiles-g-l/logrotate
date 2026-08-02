@@ -50,6 +50,7 @@ profile logrotate @{exec_path} flags=(attach_disconnected) {
   @{bin}/squid                             rPUx,
 
   @{bin}/pgrep rCx -> pgrep,
+  @{bin}/pkill rCx -> pkill,
   @{bin}/systemctl rCx -> systemctl,
 
   /etc/ r,
@@ -101,6 +102,20 @@ profile logrotate @{exec_path} flags=(attach_disconnected) {
     include <abstractions/app/pgrep>
 
     include if exists <local/logrotate_pgrep>
+  }
+
+  profile pkill {
+    include <abstractions/base>
+    include <abstractions/app/pgrep>
+
+    capability kill,
+    capability dac_read_search,
+
+    signal send,
+
+    @{bin}/pkill mr,
+
+    include if exists <local/logrotate_pkill>
   }
 
   include if exists <local/logrotate>
