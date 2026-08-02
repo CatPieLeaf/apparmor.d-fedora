@@ -1,0 +1,4 @@
+# Common profile mode for all distributions
+# File format: one profile mode by line using the format: '<profile> <mode>'
+
+doas complain
