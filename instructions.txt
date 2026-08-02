@@ -1,0 +1,268 @@
+apparmor.d-fedora - upstreaming instructions
+=============================================
+
+WHY THIS FILE EXISTS
+---------------------
+`main` in this repo carries ALL Fedora support (including COSMIC, and the
+project's own copr/terra packaging) and feeds the user's personal copr +
+Terra builds directly - it is never itself opened as a PR upstream.
+
+The upstream apparmor.d maintainer (roddhjav/apparmor.d) reviewed an earlier
+single 184-file/one-commit dump of this fork's Fedora support and refused to
+merge it, asking for the work split into multiple small, sequential,
+independently-reviewable PRs instead (his exact ask is preserved in this
+repo's git history / the session that produced this split - see the branch
+list below for how it was interpreted).
+
+The user updates and fixes things ONLY on `main` going forward. This file is
+what lets a future Claude Code session, with no memory of the branch-split
+session, correctly take a new `main` commit and port it onto the right
+upstream-bound branch(es) - without re-deriving the whole categorization
+from scratch.
+
+REMOTE / TRACKING SETUP
+------------------------
+Every upstream-bound branch is created FROM and TRACKS `upstream/main`
+(roddhjav/apparmor.d), never `main` (this fork). This keeps every branch
+free of COSMIC, the fork's own spec-file identity, and every other branch's
+unrelated content.
+
+To reproduce in a fresh clone:
+
+    git remote add upstream https://github.com/roddhjav/apparmor.d
+    git fetch upstream
+
+(In the session that built these branches, `upstream` was pointed at a local
+path to a separate `apparmor.d-stock` clone instead, purely for speed/no
+network dependency - functionally identical, same commit history.)
+
+HARD EXCLUSION RULE
+--------------------
+apparmor.d/groups/cosmic/* (currently 36 files) must NEVER appear on any
+upstream-bound branch. The maintainer explicitly rejected COSMIC support:
+"I am not adding support for another DE; it is too much work to support."
+This is fork-only content, `main`-only, forever, unless the maintainer's
+position changes.
+
+Nothing else is fork-only in the same way COSMIC is. In particular,
+dists/apparmor.d-fedora.spec (the RPM spec, renamed from
+dists/copr-apparmor.d.spec) DOES go upstream, in fedora-core-build,
+sanitized of fork-specific URLs/comments (see that branch's own commit for
+what was changed and why - the git history is the source of truth here,
+don't re-derive it, just look at
+`git log --oneline upstream/main..fedora-core-build -- dists/apparmor.d-fedora.spec`
+and `git show` that commit).
+
+BRANCH MAP
+----------
+Each branch = one PR. Ordered as the maintainer asked (so feedback from an
+earlier PR can be applied before opening a later one). File-path patterns
+below are prefixes/globs, not a frozen enumeration - a NEW file matching a
+listed pattern belongs on that branch automatically; a file matching no
+pattern needs a judgment call (see PORTING WORKFLOW below).
+
+ 1. fedora-core-build
+    pkg/builder/*.go, pkg/configure/configure.go, pkg/tasks/os.go,
+    dists/ignore/*.ignore, dists/flags/fedora.flags (ONLY the entries this
+    branch's own profiles need - currently none, this branch adds no
+    profiles), apparmor.d/tunables/home.d/apparmor.d,
+    apparmor.d/tunables/multiarch.d/system, docs/development/directives.md,
+    dists/apparmor.d-fedora.spec.
+    This is the prebuild-system plumbing that makes "fedora" a recognized
+    distribution at all. Every other branch's `DISTRIBUTION=fedora just
+    complain` depends on this branch's pkg/ changes to even run - noted
+    explicitly in each dependent branch's commit messages.
+
+ 2. fedora-test-images
+    tests/cloud-init/fedora*.yml, tests/packer/variables.pkr.hcl (the
+    fedora44 DM map entry).
+    IMPORTANT distinctions from every other distro's test image, both
+    corrected by the user directly after the first pass - don't regress
+    them if this branch gets rebuilt from scratch:
+      - Stock Fedora kernels have no AppArmor LSM at all. These images
+        install kernel-p03 (catpieleaf/kernel-p03 COPR, a custom kernel
+        with AppArmor enabled) and reboot into it (power_state: at the end
+        of each user-data file) before grubby's kernel args mean anything.
+      - Fedora ships no apparmor package at all (SELinux is the default
+        LSM). The AppArmor userspace stack (apparmor-libs, apparmor-parser,
+        apparmor-utils, apparmor-profiles, python3-LibAppArmor,
+        python3-apparmor - confirmed against the user's own real AppArmor
+        setup) comes from Terra (repos.fyralabs.com), enabled via
+        `dnf5 --repofrompath`, NOT a COPR - this repo doesn't build those
+        packages itself, no local source for them.
+      - The apparmor.d profile package itself is NOT installed from Terra
+        or any COPR either - these VMs exist to test current local work, so
+        it's cloned from this fork's `main` branch and built+installed
+        locally with `just rpm` (swapping dists/apparmor.d-fedora.spec in
+        for the generic dists/apparmor.d.spec that build-rpm expects). It
+        does depend on Terra's apparmor-profiles/apparmor-parser/
+        apparmor-utils packages (see dists/apparmor.d-fedora.spec's
+        Requires:) - that's a real, legitimate dependency, not a
+        conflict with building apparmor.d itself locally.
+    STATUS: scaffolded but UNVERIFIED - this was written in a sandbox with
+    no packer/qemu, so these configs were never actually booted. Before
+    opening this PR: run `just img fedora 44 server` (and `gnome`, `kde`)
+    for real and fix whatever breaks.
+
+ 3. fedora-dnf-profiles
+    apparmor.d/groups/dnf/dnf, apparmor.d/groups/dnf/dnf5,
+    tests/integration/dnf/*.bats, dists/flags/fedora.flags (dnf, dnf5
+    entries only).
+    STATUS: profiles are real/tested via `just build` + `DISTRIBUTION=fedora
+    just complain`. The bats tests are UNVERIFIED (no bats in the sandbox
+    that wrote them) - run them for real before opening this PR.
+
+ 4. profile-doas
+    apparmor.d/profiles-a-f/doas, dists/flags/fedora.flags (doas entry
+    only).
+
+ 5. profile-podman
+    apparmor.d/profiles-m-r/podman, dists/flags/fedora.flags (podman entry
+    only).
+    STATUS: intentionally incomplete - see the branch's own commit message.
+    No companion profiles yet for newuidmap/newgidmap/conmon/crun/runc/
+    fuse-overlayfs/slirp4netns/pasta. Expect this PR to need real iteration;
+    that's expected, the maintainer already flagged podman as needing
+    dedicated work.
+
+ 6. profile-systemd-run
+    apparmor.d/groups/systemd/systemd-run, dists/flags/fedora.flags
+    (systemd-run entry only).
+
+ 7. group-kde
+    apparmor.d/groups/kde/*, apparmor.d/abstractions/kde-base,
+    apparmor.d/groups/display-manager/lightdm,
+    apparmor.d/profiles-g-l/ksshaskpass, dists/flags/fedora.flags (ark,
+    gwenview, kate, kcalc, kinfocenter, kmenuedit, spectacle entries only).
+    (No GNOME-group PR exists - there is currently nothing GNOME-specific
+    in this fork's diff against upstream. If that changes, add a
+    group-gnome branch here the same way.)
+
+ 8. general-auth-polkit
+    apparmor.d/abstractions/app/pkexec, apparmor.d/abstractions/app/sudo-rs,
+    apparmor.d/groups/polkit/*, apparmor.d/profiles-s-z/sudo,
+    apparmor.d/profiles-s-z/visudo, dists/flags/fedora.flags (visudo entry
+    only).
+
+ 9. general-x11-xdg-portal
+    apparmor.d/abstractions/{X-strict,common/xdg,themes,icons,graphics,
+    gtk-strict,fonts.d/complete,fontconfig-cache-write,
+    qt5-settings-write.d/complete}, apparmor.d/groups/freedesktop/x*,
+    apparmor.d/groups/freedesktop/xdg-*.
+
+10. general-gpg-crypto
+    apparmor.d/abstractions/{authentication.d/complete,openssl.d/complete,
+    p11-kit.d/complete,ssl_certs.d/complete}, apparmor.d/groups/gpg/*.
+
+11. general-flatpak-sandbox
+    apparmor.d/abstractions/app/flatpak,
+    apparmor.d/abstractions/flatpak/baseapp/*, apparmor.d/groups/flatpak/*,
+    apparmor.d/groups/children/glycin.
+
+12. general-systemd-dbus
+    apparmor.d/groups/apparmor/apparmor.systemd, apparmor.d/groups/bus/*,
+    apparmor.d/groups/systemd/* (EXCLUDING systemd-run - branch 6 owns
+    that), apparmor.d/abstractions/app/bus.
+
+13. general-new-app-profiles
+    Brand-new, additive-only standalone profiles only - not fixes to
+    existing ones (those go in branch 14 no matter how small):
+    apparmor.d/groups/browsers/{brave-origin,claude-desktop,helium-bin},
+    apparmor.d/profiles-g-l/heroic,
+    apparmor.d/profiles-m-r/{mangoapp,nvme-cli},
+    apparmor.d/profiles-s-z/yubikey-manager, dists/flags/fedora.flags
+    (heroic, mangoapp, nvme-cli, yubikey-manager, brave-origin,
+    claude-desktop, helium-bin entries only).
+    NOTE: apparmor.d/profiles-m-r/mono-sgen was originally miscategorized
+    here (it's a FIX to an existing upstream profile, not a new one) and
+    was moved to branch 14 during the audit pass. Double-check with `git
+    diff --diff-filter=A` whether a file is genuinely new before adding it
+    here vs branch 14.
+
+14. general-hardware-misc
+    Everything else: fixes to existing profiles across hardware/power/audio
+    (nvidia-strict, audio-client, wireplumber, cpupower,
+    child-modprobe-nvidia, gamemoded, nvidia-settings, nvtop, pavucontrol,
+    rtkit-daemon, alsactl, thermald), storage/filesystem (btrfs, mkfs-fat,
+    parted, gparted, gpartedbin, tune2fs, smartd), network/system-info
+    (nm-dispatcher, nm-online, boltd, upowerd, agetty, nproc, uname,
+    whoami, lsb-release, cgroup-limits), and misc package/media/system
+    (packagekitd, logrotate, qbittorrent, mkvtoolnix-gui, mono-sgen,
+    smplayer, ffprobe, fwupd, git, app/git, gssproxy, iw, kmod, cupsd,
+    xauth, fc-cache, child-open, child-open-any, pkill). Plus one brand-new
+    profile: apparmor.d/profiles-a-f/aria2 (dists/flags/fedora.flags: aria2
+    entry only).
+    One commit per unrelated single-file fix is fine on this branch -
+    each is 1-15 lines, trivially reviewable individually even bundled into
+    one PR.
+
+VERIFICATION DONE / STILL NEEDED
+----------------------------------
+Verified for real in the session that built these branches: `just build` +
+`DISTRIBUTION=fedora just complain` + `just check` run clean on every
+branch except fedora-test-images and the dnf bats tests (both flagged
+UNVERIFIED above - no packer/qemu/bats available in that sandbox). Since
+most branches don't carry fedora-core-build's pkg/ changes themselves,
+verifying them standalone requires temporarily overlaying core-build's
+pkg/+dists/ignore/+tunables/ into the working tree (uncommitted,
+`git checkout fedora-core-build -- pkg/ dists/ignore/ apparmor.d/tunables/`,
+verify, then `git checkout HEAD -- pkg/ dists/ignore/ apparmor.d/tunables/`
+to discard) - this is expected and not a sign anything is broken; it's
+purely because `DISTRIBUTION=fedora` isn't recognized without core-build's
+Go changes in the working tree.
+
+Before ACTUALLY opening any PR: rebuild + relint that specific branch one
+more time against whatever upstream/main has drifted to by then (`git fetch
+upstream && git rebase upstream/main <branch>`), since these branches were
+all built from upstream/main as of commit 5e62647d3 - upstream will have
+moved on by the time any of this actually gets opened.
+
+PORTING WORKFLOW (the actual point of this file)
+----------------------------------------------------
+When `main` gets a new commit:
+
+1. For each file the commit touches, find which branch's file-path pattern
+   in BRANCH MAP owns it.
+
+2. If it matches exactly one pattern: `git checkout <branch>`, then either
+   `git cherry-pick <commit>` if the commit touches ONLY files belonging to
+   that one branch, or - if the commit spans multiple branches' territory -
+   manually re-apply just the relevant hunks per branch:
+       git show <commit> -- <path-or-paths-for-this-branch> | git apply
+   then commit separately on each affected branch with its own focused
+   commit message (don't just copy the `main` commit message verbatim if it
+   describes work spanning multiple branches).
+
+3. If a new profile file is being added and it needs a
+   `dists/flags/fedora.flags complain` entry (check dists/flags/main.flags
+   upstream and this fork's dists/flags/fedora.flags on `main` for the
+   existing convention), add that flag line to the SAME branch that
+   introduces the profile, not fedora-core-build - fedora-core-build should
+   never carry profile-specific flag entries (see its own branch note
+   above for why: it would reference profiles that don't exist yet on that
+   branch alone).
+
+4. If a file matches NO existing pattern: decide whether it extends an
+   existing thematic bucket (most single-profile fixes do - pick whichever
+   bucket in BRANCH MAP reads closest) or genuinely needs a new branch
+   (e.g. a new complex profile the maintainer would want isolated the way
+   doas/podman/systemd-run were, or a new DE group). When that happens,
+   ADD A NEW ROW to BRANCH MAP above so this file stays authoritative -
+   don't leave the categorization only in your own reasoning for that one
+   session.
+
+5. Never let apparmor.d/groups/cosmic/* leak onto any branch, ever, full
+   stop, regardless of which pattern a commit's other files match.
+
+6. After porting: rebuild + relint that branch (`just build` +
+   `DISTRIBUTION=fedora just complain` + `just check`, with the
+   core-build-overlay trick from VERIFICATION above if the branch isn't
+   fedora-core-build itself) before considering the port done.
+
+7. Sanity-check when in doubt: `git diff --diff-filter=A --name-only
+   upstream/main..main -- <path>` tells you if a given path is a NEW file
+   on `main` (added since the fork point) vs a modification of something
+   upstream already had - new-vs-modified is often the deciding factor
+   between which branch/commit-style a file belongs in (see the
+   general-new-app-profiles vs general-hardware-misc distinction above, and
+   the mono-sgen miscategorization note in branch 13).
