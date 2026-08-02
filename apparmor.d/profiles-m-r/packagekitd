@@ -126,6 +126,8 @@ profile packagekitd @{exec_path} flags=(attach_disconnected) {
   #aa:only fedora
   @{att}@{run}/dnf/ rw,
   @{run}/dnf/ rw,
+  @{att}@{run}/dnf/rpmtransaction.lock rwk,
+  @{run}/dnf/rpmtransaction.lock rwk,
 
   @{att}@{run}/systemd/inhibit/@{int}.ref rw,
 
