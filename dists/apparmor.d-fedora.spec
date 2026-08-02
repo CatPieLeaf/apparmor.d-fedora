@@ -11,13 +11,18 @@
 
 %define _disable_source_fetch 0
 
+# Numeric release, without the dist suffix - also used to build the
+# Source0 tag name (v<VERSION>-<tag_release>), so it must match the
+# release number in the git tag exactly.
+%global tag_release 1
+
 Name:           apparmor.d
 Version:        0.4910.0
-Release:        1%{?dist}
+Release:        %{tag_release}%{?dist}
 Summary:        Full set of AppArmor policies
 License:        GPL-2.0-only
 URL:            https://github.com/CatPieLeaf/apparmor.d-fedora
-Source0:        %{url}/archive/refs/heads/main.tar.gz
+Source0:        %{url}/archive/refs/tags/v%{version}-%{tag_release}.tar.gz
 
 Requires:       apparmor-profiles
 Requires:       apparmor-parser
@@ -39,7 +44,7 @@ you have already validated this profile set in complain mode.
 %endif
 
 %prep
-%autosetup -n %{name}-fedora-main
+%autosetup -n apparmor.d-fedora-%{version}-%{tag_release}
 
 %build
 %if %{_complain} == 1
