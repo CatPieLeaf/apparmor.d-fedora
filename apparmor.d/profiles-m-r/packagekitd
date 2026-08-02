@@ -123,6 +123,8 @@ profile packagekitd @{exec_path} flags=(attach_disconnected) {
   owner @{tmp}/tmpdir.@{rand6}/{,**} rw,
   #aa:only fedora
   owner @{tmp}/librepo-tmp-@{rand6} rw,
+  #aa:only fedora
+  @{att}@{run}/dnf/ rw,
 
   @{att}@{run}/systemd/inhibit/@{int}.ref rw,
 
