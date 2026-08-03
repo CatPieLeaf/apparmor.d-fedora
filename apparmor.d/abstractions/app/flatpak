@@ -111,16 +111,14 @@
   @{PROC}/[0-9]*/task/[0-9]*/comm rw,
   @{PROC}/[0-9]*/statm r,
 
-  # Some apps blindly open() with O_CREAT even for files that already
-  # exist, e.g. AnyDesk's /proc/cpuinfo probe
+  # Some apps O_CREAT-open files that already exist (e.g. AnyDesk's /proc/cpuinfo probe)
   @{PROC}/cpuinfo rw,
 
   # Hardware/platform device identification (e.g. Electron gamepad enumeration)
   @{sys}/devices/platform/uevent r,
   @{sys}/devices/platform/**/uevent r,
 
-  # Network interface / PCI device enumeration (e.g. lspci, network client
-  # apps reading a MAC address for machine identification)
+  # Network/PCI device enumeration (e.g. lspci, reading a MAC address)
   @{sys}/bus/pci/slots/ r,
   @{sys}/bus/pci/slots/*/address r,
   @{sys}/devices/@{pci}/label r,
@@ -142,8 +140,7 @@
   /dev/input/by-id/ r,
   /dev/input/by-path/ r,
 
-  # Qt platform theme engine plugin, present in the shared freedesktop
-  # runtime any Qt-based flatpak app pulls in
+  # Qt theme engine plugin, from the shared freedesktop runtime
   /usr/share/runtime/lib/plugins/Kvantum/styles/*.so m,
 
   include if exists <abstractions/app/flatpak.d>
