@@ -52,6 +52,11 @@ profile flatpak-portal @{exec_path} flags=(attach_disconnected) {
   /var/lib/flatpak/repo/config r,
   /var/lib/flatpak/repo/objects/ r,
   /var/lib/flatpak/repo/tmp/ r,
+  /var/lib/flatpak/repo/refs/remotes/*/app/@{appid}/@{arch}/stable r,
+
+  # Fedora's curated Flathub allowlist (fedora-repos-flathub package)
+  #aa:only fedora
+  /usr/share/flatpak/fedora-flathub.filter r,
 
         / r,
   owner /att/**/ r,
