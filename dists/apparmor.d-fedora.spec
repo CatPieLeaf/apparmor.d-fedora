@@ -11,12 +11,10 @@
 
 %define _disable_source_fetch 0
 
-# Numeric release, without the dist suffix - also used to build the
-# Source0 tag name (v<VERSION>-<tag_release>), so it must match the
-# release number in the git tag exactly.
-%global tag_release 1
+# Numeric release for the Source0 tag name (v<VERSION>-<tag_release>); must match the git tag
+%global tag_release 2
 
-Name:           apparmor.d
+Name:           apparmor.d-fedora
 Version:        0.4910.0
 Release:        %{tag_release}%{?dist}
 Summary:        Full set of AppArmor policies
@@ -27,6 +25,7 @@ Source0:        %{url}/archive/refs/tags/v%{version}-%{tag_release}.tar.gz
 Requires:       apparmor-profiles
 Requires:       apparmor-parser
 Requires:       apparmor-utils
+Provides:       apparmor.d
 BuildRequires:  just
 BuildRequires:  golang
 BuildRequires:  systemd-rpm-macros
@@ -58,14 +57,8 @@ just destdir="%{buildroot}" install-prebuilt
 just destdir="%{buildroot}" install-base
 just destdir="%{buildroot}" install-tools
 
-# Do not force dbus(-broker).service under AppArmorProfile= via systemd
-# drop-in. RakuOS (a Fedora-based distro shipping this same profile set)
-# tried this repeatedly and gave up on it: "still causing boot/service
-# problems after repeated re-enable attempts" (their git history has several
-# enable/disable round-trips ending in permanently disabled). dbus underlies
-# PAM's session bus, kwallet registration, and polkit, so a boot-time dbus
-# confinement race cascades into exactly this kind of hard-to-diagnose
-# auth/wallet breakage.
+# Don't force dbus(-broker).service under AppArmorProfile= - RakuOS tried
+# repeatedly and gave up (boot/session auth breakage).
 rm -rf %{buildroot}/usr/lib/systemd/system/*.service.d
 rm -rf %{buildroot}/usr/lib/systemd/user/*.service.d
 

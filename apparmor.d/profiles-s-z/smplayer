@@ -66,8 +66,7 @@ profile smplayer @{exec_path} {
   #aa:lint ignore=too-wide
   / r,
   /*/ r,
-  # PATH-style probing of mpv/youtube-dl/yt-dlp across bin/lib dirs, including
-  # arbitrary third-party install dirs under /opt
+  # PATH-style probing of mpv/youtube-dl/yt-dlp, incl. arbitrary /opt installs
   /*/*/ r,
 
   owner @{HOME}/{,**} rw,

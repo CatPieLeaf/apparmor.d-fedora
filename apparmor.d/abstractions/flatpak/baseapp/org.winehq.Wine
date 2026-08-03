@@ -32,8 +32,7 @@
   # https://www.phoronix.com/news/Linux-6.14-NTSYNC-Driver-Ready
   /dev/ntsync r,
 
-  # Steam Play compatibility tools (Proton and community builds); mrix
-  # matches abstractions/common/pressure-vessel's rule for the same tree
+  # Steam Play compat tools (Proton etc.), same as abstractions/common/pressure-vessel
   @{user_share_dirs}/Steam/compatibilitytools.d/*/files/bin/wine{,64,server} mrix,
   @{HOME}/.steam/steam/steamapps/common/Proton*/files/bin/wine{,64,server} Ux,
 

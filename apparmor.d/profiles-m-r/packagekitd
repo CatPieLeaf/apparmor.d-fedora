@@ -45,8 +45,7 @@ profile packagekitd @{exec_path} flags=(attach_disconnected) {
 
   @{exec_path} mr,
 
-  # &packagekitd//gpg, not bare gpg: a bare name is ambiguous with the
-  # unrelated top-level groups/gpg/gpg profile of the same name
+  # &packagekitd//gpg not bare gpg: avoids clash with the unrelated groups/gpg/gpg profile
   @{bin}/gpg{,2}         Cx -> &packagekitd//gpg,
   @{bin}/gpgconf         Cx -> &packagekitd//gpg,
   @{bin}/gpgsm           Cx -> &packagekitd//gpg,
@@ -92,9 +91,7 @@ profile packagekitd @{exec_path} flags=(attach_disconnected) {
   #aa:only ubuntu
   @{lib}/update-notifier/update-motd-updates-available  Px,
 
-  # RPM %posttrans/%triggerin scriptlets - selinux-policy relabel hooks run
-  # unconditionally on Fedora regardless of whether SELinux is actually the
-  # active LSM, alongside assorted other package-trigger helpers.
+  # %posttrans/%triggerin scriptlets: selinux-policy relabel hooks run regardless of active LSM
   #aa:only fedora
   @{bin}/rm                          rix,
   @{bin}/readlink                    rix,
@@ -130,9 +127,7 @@ profile packagekitd @{exec_path} flags=(attach_disconnected) {
         /tmp/apt-dpkg-install-@{rand6}/ rw,
   owner @{tmp}/apt-changelog-@{rand6}/.apt-acquire-privs-test.@{rand6} rw,
 
-  # rwlk, not rw: gnupg's dotlock protocol under libdnf5's tmp gnupg home
-  # creates/hardlinks lock files (.#lk0x*, .#lk0x*x, pubring.kbx.lock,
-  # trustdb.gpg.lock) inside this dir - needs the l/k bits too.
+  # rwlk not rw: gnupg's dotlock protocol under libdnf5's tmp gnupg home needs l/k too
   #aa:only fedora
   owner @{tmp}/libdnf5.@{rand6}/{,**} rwlk,
   #aa:only fedora
@@ -147,19 +142,12 @@ profile packagekitd @{exec_path} flags=(attach_disconnected) {
   @{att}@{run}/dnf/rpmtransaction.lock rwk,
   @{run}/dnf/rpmtransaction.lock rwk,
 
-  # selinux-policy's translation daemon socket dir - the relabel scriptlets
-  # (see the selinuxenabled/semodule/varrun-convert.sh transitions above)
-  # check for and clean this up unconditionally, regardless of whether
-  # SELinux is actually the active LSM.
+  # SELinux translation daemon socket dir, cleaned up by the relabel scriptlets above
   #aa:only fedora
   @{att}@{run}/setrans/ rw,
   @{run}/setrans/ rw,
 
-  # Local package install (e.g. "Install with GNOME Software/Discover" on a
-  # .rpm, or `dnf install ./foo.rpm`) - runs as root reading a user-owned
-  # file (fsuid=0, file ouid=user), so no "owner" prefix: fsuid != ouid
-  # means an owner rule would still deny it. Can be anywhere the user has
-  # one, not just a download dir: home tree or an external/mounted drive.
+  # Local .rpm install: reads a user-owned file as root, so no "owner" prefix (fsuid=0 != ouid)
   #aa:only fedora
   @{HOME}/**.rpm r,
   @{MOUNTS}/**.{rpm,RPM} r,
