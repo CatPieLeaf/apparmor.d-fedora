@@ -36,8 +36,7 @@ profile heroic @{exec_path} flags=(attach_disconnected) {
 
   @{lib_dirs}/chrome-sandbox rix,
 
-  # Bundled backend CLIs (legendary/gogdl/nile), vendored inside heroic's own
-  # resources dir rather than separately packaged, so rix instead of a transition
+  # Bundled backend CLIs (legendary/gogdl/nile), vendored in heroic's own dir, not packaged
   @{lib_dirs}/resources/app.asar.unpacked/**/legendary{,.exe} rix,
   @{lib_dirs}/resources/app.asar.unpacked/**/gogdl{,.exe} rix,
   @{lib_dirs}/resources/app.asar.unpacked/**/nile{,.exe} rix,

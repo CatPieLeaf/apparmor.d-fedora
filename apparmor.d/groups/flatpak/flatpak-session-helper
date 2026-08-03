@@ -57,12 +57,10 @@ profile flatpak-session-helper @{exec_path} flags=(attach_disconnected,mediate_d
     include <abstractions/base>
     include <abstractions/app/pkexec>
 
-    # abstractions/app/pkexec's own ptrace rule only covers self (@{profile_name});
-    # pkexec here ptraces its own parent to check its confinement
+    # app/pkexec's ptrace rule only covers self; pkexec here ptraces its own parent
     ptrace read peer=flatpak-session-helper,
 
-    # env (rix'd from abstractions/app/pkexec) execs straight into a flatpak
-    # runtime's dynamic linker, mirroring the parent profile's own transition
+    # env execs into the flatpak runtime's dynamic linker, mirroring the parent's transition
     /var/lib/flatpak/runtime/**/files/@{lib}/** rPx -> flatpak-session-helper-app,
 
     include if exists <local/flatpak-session-helper_pkexec>

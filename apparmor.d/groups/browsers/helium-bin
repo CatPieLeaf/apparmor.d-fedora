@@ -7,9 +7,7 @@ abi <abi/5.0>,
 
 include <tunables/global>
 
-# abstractions/app/chromium's crashpad_handler subprofile uses peer=@{name}
-# to scope ptrace/signal to the real parent - profile name here is
-# "helium-bin", not "helium", so both must be listed
+# crashpad_handler's peer=@{name} needs both names: this profile is "helium-bin", not "helium"
 @{name} = helium helium-bin
 @{domain} = com.imput.helium org.chromium.Chromium
 @{lib_dirs} = /opt/helium

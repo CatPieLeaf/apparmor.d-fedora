@@ -62,14 +62,11 @@ profile fbwrap flags=(attach_disconnected,mediate_deleted) {
 
   /bindfile@{rand6} rw,
 
-  # Some apps (mobile/console ports especially) write settings/data straight
-  # to the sandbox root instead of XDG dirs; this is the app's own ephemeral
-  # bwrap tmpfs, not the host
+  # Some apps write to the sandbox root instead of XDG dirs; own ephemeral bwrap tmpfs, not host
   #aa:lint ignore=too-wide
   owner /{,**} rw,
 
-  # /home/ itself is root-owned, so abstractions/flatpak/filesystem's
-  # "owner /home/ r," doesn't cover it; listing just reveals usernames
+  # /home/ is root-owned, so flatpak/filesystem's "owner /home/ r," misses it
   /home/ rw,
 
   owner @{run}/flatpak/.flatpak/@{int}/.ref rk,

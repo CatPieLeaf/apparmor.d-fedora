@@ -45,8 +45,7 @@ profile git @{exec_path} flags=(attach_disconnected) {
   @{bin}/ssh            rCx -> &git//ssh,
   @{bin}/ssh.hmac         r,
 
-  # HTTPS credential prompts (askpass) can invoke this even outside the ssh
-  # child hat - confirmed denied under the top-level git profile itself.
+  # HTTPS askpass can invoke this outside the ssh child hat too
   @{bin}/ksshaskpass    rPx,
 
   /usr/share/libalternatives/{,**} r,

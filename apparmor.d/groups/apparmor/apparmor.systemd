@@ -19,9 +19,7 @@ profile apparmor.systemd @{exec_path} {
 
   @{sh_path}                  rix,
   @{bin}/{,e}grep             rix,
-  # PUx, not Px: a full restart's aa-teardown unloads these two profiles
-  # before this step runs, so a hard Px fails with "profile transition not
-  # found" during that window.
+  # PUx not Px: aa-teardown unloads these profiles first, so a hard Px fails
   @{sbin}/aa-status           rPUx,
   @{sbin}/apparmor_parser     rPUx,
   @{bin}/getconf              rix,

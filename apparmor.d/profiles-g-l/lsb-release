@@ -40,9 +40,7 @@ profile lsb-release @{exec_path} flags=(attach_disconnected) {
 
   /dev/pts/[0-9]* rwk,
 
-  # Invoked from inside an AppImage's own mounted runtime (squashfuse mount
-  # under /tmp/.mount_<name+hash>/), which bundles its own glibc gconv
-  # modules. Wildcarded since the name+hash varies per AppImage.
+  # AppImage's own squashfuse mount bundles its own glibc gconv; wildcarded, name+hash varies
   /tmp/.mount_*/shared/lib/gconv/gconv-modules r,
 
   # file_inherit
