@@ -32,8 +32,7 @@ profile xdg-mime @{exec_path} flags=(attach_disconnected) {
   # AppImage's own squashfuse-mounted runtime bundles its own glibc gconv
   /tmp/.mount_*/shared/lib/gconv/gconv-modules r,
 
-  # AppImage's own bundled kbuildsycoca6 (a different binary path than
-  # groups/kde/kbuildsycoca) rebuilds the desktop/mime db from the mount
+  # AppImage's own bundled kbuildsycoca6 rebuilds the desktop/mime db from the mount
   /tmp/.mount_*/share/mime/ r,
   /tmp/.mount_*/share/mime/*/ r,
   /tmp/.mount_*/share/mime/mime.cache r,

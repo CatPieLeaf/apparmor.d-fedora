@@ -9,8 +9,7 @@
   owner @{HOME}/.themes/{,**} r,
   owner @{user_share_dirs}/themes/{,**} r,
 
-  # Third-party QStyle/window-decoration engine config (e.g. Klassy, Kvantum);
-  # engine name isn't known ahead of time, so this can't be scoped narrower
+  # Third-party QStyle/decoration engine config (e.g. Klassy, Kvantum); name varies
   owner @{user_config_dirs}/*rc r,
   owner @{user_config_dirs}/*/*rc r,
 
