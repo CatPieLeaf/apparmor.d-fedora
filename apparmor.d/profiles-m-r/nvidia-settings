@@ -41,9 +41,7 @@ profile nvidia-settings @{exec_path} flags=(attach_disconnected) {
 
   owner @{HOME}/.nvidia-settings-rc rw,
 
-  # Not owner-scoped: run via sudo, this process's fsuid (root) won't match
-  # the file's owning uid, but the cookie itself is meant to be read by
-  # whoever needs to authenticate to this specific display.
+  # Not owner-scoped: run via sudo, root fsuid won't match the file's owning uid
   @{run}/user/@{uid}/xauth_@{rand6} r,
 
   /etc/glvnd/egl_vendor.d/{,*.json} r,
@@ -95,8 +93,7 @@ profile nvidia-settings @{exec_path} flags=(attach_disconnected) {
 
   /etc/fstab r,
 
-  # GTK save/open dialog defaults to $HOME and mime-sniffs visible entries,
-  # and also supports rename/delete from within the dialog
+  # GTK save/open dialog defaults to $HOME; also supports rename/delete from the dialog
   owner @{HOME}/{,**} rw,
   owner @{HOME}/.steam/steam.pid r,
 

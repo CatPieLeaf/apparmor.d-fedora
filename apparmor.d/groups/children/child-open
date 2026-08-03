@@ -27,8 +27,7 @@ profile child-open flags=(attach_disconnected,mediate_deleted) {
   include <abstractions/app-open>
   include <abstractions/app/open>
 
-  # Sockets inherited across exec from network-active callers (e.g. torrent
-  # clients keeping DHT/LSD/UPnP sockets open while spawning xdg-open)
+  # Inherited sockets from network-active callers (e.g. torrent clients spawning xdg-open)
   network inet dgram,   # file_inherit
   network inet6 dgram,  # file_inherit
   network inet stream,  # file_inherit
