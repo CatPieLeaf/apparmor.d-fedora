@@ -21,19 +21,14 @@ profile xdg-settings @{exec_path} flags=(attach_disconnected) {
   @{bin}/kreadconfig{,5}      Px,
   @{bin}/xprop                Px,
 
-  # Invoked under contexts that set no_new_privs (e.g. portal-spawned), which
-  # blocks the usual Px transition to the dedicated xdg-mime profile - see
-  # docs/development/internal.md "No New Privileges". Inherit instead, so
-  # bring in the rules xdg-mime itself needs (abstractions/mime, mknod,
-  # mimeapps.list) since they no longer come from the xdg-mime profile.
+  # no_new_privs (portal-spawned) blocks the usual Px to xdg-mime; inherit and bring its rules in
   @{bin}/xdg-mime             rix,
 
   owner @{user_config_dirs}/mimeapps.list{,.new} rw,
   owner @{user_config_dirs}/xfce4/helpers.rc{,.@{rand6}} rw,
   owner @{user_share_dirs}/applications/{,**} rw,
 
-  # kbuildsycoca6 inherits this profile for the same no_new_privs reason as
-  # xdg-mime above (portal-spawned context blocks the usual Px transition)
+  # kbuildsycoca6 inherits here for the same no_new_privs reason as xdg-mime above
   /etc/machine-id r,
   owner @{user_cache_dirs}/#@{int} rw,
 

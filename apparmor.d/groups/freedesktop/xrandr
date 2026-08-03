@@ -18,8 +18,7 @@ profile xrandr @{exec_path} {
 
   @{run}/sddm/xauth_@{rand6} r,
 
-  # Not owner-scoped: this root-run instance's fsuid won't match the
-  # cookie's owning uid, same as nvidia-settings' equivalent rule
+  # Not owner-scoped: root fsuid won't match the cookie's owning uid (like nvidia-settings)
   @{run}/user/@{uid}/xauth_@{rand6} r,
 
   owner /dev/tty@{u8} rw,
