@@ -32,10 +32,8 @@
   @{bin}/sudo        mr,
   @{bin}/sudo-rs     mr,
 
-  # pam_unix execs this setuid helper to verify the password (/etc/shadow
-  # isn't directly readable). Ux needs no transition-table entry or
-  # target-profile lookup, sidestepping the Px/px merge issue seen in the
-  # sudo profile - see profiles-s-z/sudo for the full explanation.
+  # pam_unix's setuid password-check helper; Ux sidesteps the Px/px merge
+  # issue seen in profiles-s-z/sudo.
   priority=1 @{sbin}/unix_chkpwd rUx,
 
   @{etc_ro}/sudo.conf r,
