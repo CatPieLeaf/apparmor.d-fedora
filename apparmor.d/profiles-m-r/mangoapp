@@ -2,11 +2,8 @@
 # Copyright (C) 2026 Alexandre Pujol <alexandre@pujol.io>
 # SPDX-License-Identifier: GPL-2.0-only
 
-# MangoHud itself is a Vulkan/OpenGL layer (mangohud.so) preloaded into the
-# game's own process via LD_PRELOAD - it runs inside whatever profile confines
-# the game, not a profile of its own. mangoapp is the standalone overlay
-# window process (used under gamescope) that the preloaded layer talks to
-# over a local socket, and is the only independently-exec'd MangoHud binary.
+# MangoHud itself LD_PRELOADs into the game's own process; mangoapp is the
+# standalone gamescope overlay window it talks to over a local socket.
 
 abi <abi/5.0>,
 
