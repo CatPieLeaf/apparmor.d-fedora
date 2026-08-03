@@ -155,6 +155,15 @@ profile packagekitd @{exec_path} flags=(attach_disconnected) {
   @{att}@{run}/setrans/ rw,
   @{run}/setrans/ rw,
 
+  # Local package install (e.g. "Install with GNOME Software/Discover" on a
+  # .rpm, or `dnf install ./foo.rpm`) - runs as root reading a user-owned
+  # file (fsuid=0, file ouid=user), so no "owner" prefix: fsuid != ouid
+  # means an owner rule would still deny it. Can be anywhere the user has
+  # one, not just a download dir: home tree or an external/mounted drive.
+  #aa:only fedora
+  @{HOME}/**.rpm r,
+  @{MOUNTS}/**.{rpm,RPM} r,
+
   @{att}@{run}/systemd/inhibit/@{int}.ref rw,
 
   owner @{run}/systemd/users/@{uid} r,
