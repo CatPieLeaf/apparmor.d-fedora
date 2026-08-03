@@ -67,9 +67,11 @@ profile packagekitd @{exec_path} flags=(attach_disconnected) {
   @{bin}/glib-compile-schemas        Px,
   @{bin}/install-info                Px,
   @{bin}/ischroot                    Px,
+  @{bin}/pgrep                       Px,
   @{bin}/systemctl                   Cx -> systemctl,
   @{bin}/systemd-inhibit             Px,
   @{bin}/update-desktop-database     Px,
+  @{bin}/xdg-mime                    Px,
   @{lib}/cnf-update-db               Px,
 
   #aa:only pacman
