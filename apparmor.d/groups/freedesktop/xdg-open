@@ -14,6 +14,7 @@ profile xdg-open @{exec_path} flags=(attach_disconnected,mediate_deleted) {
   include <abstractions/base>
   include <abstractions/app/open>
   include <abstractions/common/xdg>
+  include <abstractions/fontconfig-cache-write>
   include <abstractions/kde-base>
   include <abstractions/path>
 
