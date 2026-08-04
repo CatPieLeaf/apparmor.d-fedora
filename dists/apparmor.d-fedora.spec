@@ -26,9 +26,12 @@ Requires:       apparmor-profiles
 Requires:       apparmor-parser
 Requires:       apparmor-utils
 Provides:       apparmor.d
+Packager:       CatPieLeaf <catpieleaf@proton.me>
 BuildRequires:  just
 BuildRequires:  golang
 BuildRequires:  systemd-rpm-macros
+BuildRequires:  curl
+BuildRequires:  jq
 
 %description
 AppArmor.d is a set of over 1500 AppArmor profiles whose aim is to
@@ -90,3 +93,10 @@ fi
 %doc %{_mandir}/man8/aa-*.8.gz
 
 %changelog
+%(
+json=$(curl -fsSL https://api.github.com/repos/CatPieLeaf/apparmor.d-fedora/commits/main)
+sha=$(echo "$json" | jq -r '.sha[0:7]')
+msg=$(echo "$json" | jq -r '.commit.message | split("\n")[0]' | sed 's/%/%%/g')
+echo "* $(date '+%a %b %d %Y') CatPieLeaf <catpieleaf@proton.me> - %{version}-%{release}"
+echo "- ${sha}: ${msg}"
+)
