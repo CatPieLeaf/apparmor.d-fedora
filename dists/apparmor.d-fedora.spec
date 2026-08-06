@@ -60,11 +60,6 @@ just destdir="%{buildroot}" install-prebuilt
 just destdir="%{buildroot}" install-base
 just destdir="%{buildroot}" install-tools
 
-# Don't force dbus(-broker).service under AppArmorProfile= - RakuOS tried
-# repeatedly and gave up (boot/session auth breakage).
-rm -rf %{buildroot}/usr/lib/systemd/system/*.service.d
-rm -rf %{buildroot}/usr/lib/systemd/user/*.service.d
-
 %posttrans
 apparmor_parser --purge-cache || :
 systemctl daemon-reload || :
