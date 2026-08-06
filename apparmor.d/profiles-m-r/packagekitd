@@ -98,14 +98,24 @@ profile packagekitd @{exec_path} flags=(attach_disconnected) {
   @{bin}/rm                          rix,
   @{bin}/readlink                    rix,
   @{bin}/getent                      rix,
+  @{bin}/{,e}grep                    rix,
+  @{bin}/tail                        rix,
+  @{bin}/tr                          rix,
+  @{bin}/cut                         rix,
+  @{bin}/find                        rix,
   @{bin}/selinuxenabled              PUx, # TODO: write the profile
   @{bin}/semodule                    PUx, # TODO: write the profile
   @{bin}/firewall-cmd                PUx, # TODO: write the profile
+  @{bin}/killall                     PUx, # TODO: write the profile
+  @{sbin}/service                    PUx, # TODO: write the profile
   @{lib}/systemd/systemd-update-helper PUx, # TODO: write the profile
   @{lib}/selinux/varrun-convert.sh   PUx, # TODO: write the profile
   @{bin}/systemd-tmpfiles            Px,
   @{bin}/gtk-update-icon-cache       Px,
   @{bin}/systemd-run                 Px,
+  @{bin}/systemd-sysusers            Px,
+  @{bin}/journalctl                  Px,
+  @{bin}/gio-querymodules-{32,64}    Px -> gio-querymodules,
 
   #aa:lint ignore=too-wide
   # Install/update packages
