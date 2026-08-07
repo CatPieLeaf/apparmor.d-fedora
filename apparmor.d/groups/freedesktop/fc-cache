@@ -22,6 +22,10 @@ profile fc-cache @{exec_path} {
   # fontconfig's wrapper execs the arch-specific cache builders as children
   @{bin_dirs}/fc-cache-{32,64} mrix,
 
+  # Fedora ships /usr/bin/fc-cache as a bash wrapper script, not an ELF binary
+  #aa:only fedora
+  @{sh_path} mr,
+
   /var/cache/fontconfig/{,**} rw,
   /var/cache/fontconfig/*.cache-@{int} rwk,
   /var/cache/fontconfig/*.cache-@{int}.LCK rwl,
