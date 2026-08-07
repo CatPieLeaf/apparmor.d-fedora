@@ -56,10 +56,8 @@ profile thermald @{exec_path} flags=(attach_disconnected) {
 
   @{sys}/devices/platform/*/uuids/current_uuid rw,
 
-  @{sys}/devices/virtual/dmi/id/product_family r,
-  @{sys}/devices/virtual/dmi/id/product_name r,
-  @{sys}/devices/virtual/dmi/id/product_uuid r,
-  @{sys}/devices/virtual/dmi/id/sys_vendor r,
+  # thermald reads whatever DMI fields are present on the given hardware
+  @{sys}/devices/virtual/dmi/id/* r,
 
   @{sys}/devices/virtual/thermal/**/{type,temp} r,
 
