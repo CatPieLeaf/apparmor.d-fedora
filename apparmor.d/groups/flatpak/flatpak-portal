@@ -17,6 +17,7 @@ profile flatpak-portal @{exec_path} flags=(attach_disconnected) {
   include <abstractions/mime>
   include <abstractions/nameservice-strict>
   include <abstractions/network-manager-observe>
+  include <abstractions/ssl_certs>
 
   capability sys_ptrace,
 
@@ -74,7 +75,7 @@ profile flatpak-portal @{exec_path} flags=(attach_disconnected) {
 
   owner @{user_cache_dirs}/flatpak/system-cache/ r,
   owner @{user_cache_dirs}/flatpak/system-cache/summaries/ r,
-  owner @{user_cache_dirs}/flatpak/system-cache/summaries/*.idx r,
+  owner @{user_cache_dirs}/flatpak/system-cache/summaries/*.idx{,.sig} r,
 
   owner @{user_config_dirs}/user-dirs.dirs r,
 
