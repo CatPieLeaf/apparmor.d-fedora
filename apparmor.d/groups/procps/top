@@ -35,6 +35,7 @@ profile top @{exec_path} flags=(attach_disconnected) {
 
   @{run}/systemd/sessions/ r,
   @{run}/systemd/sessions/@{int} r,
+  @{run}/systemd/sessions/c@{int} r,
 
   @{sys}/devices/system/node/ r,
   @{sys}/devices/system/node/node@{int}/cpumap r,
