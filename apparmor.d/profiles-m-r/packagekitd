@@ -108,6 +108,7 @@ profile packagekitd @{exec_path} flags=(attach_disconnected) {
   @{bin}/selinuxenabled              PUx, # TODO: write the profile
   @{bin}/semodule                    PUx, # TODO: write the profile
   @{bin}/setsebool                   PUx, # TODO: write the profile
+  @{bin}/alternatives                PUx, # TODO: write the profile
   @{bin}/firewall-cmd                PUx, # TODO: write the profile
   @{bin}/killall                     PUx, # TODO: write the profile
   @{bin}/udevadm                     Cx -> udevadm,
