@@ -105,6 +105,7 @@ profile packagekitd @{exec_path} flags=(attach_disconnected) {
   @{bin}/tr                          rix,
   @{bin}/cut                         rix,
   @{bin}/find                        rix,
+  @{bin}/{m,g,}awk                   rix,
   @{bin}/selinuxenabled              PUx, # TODO: write the profile
   @{bin}/semodule                    PUx, # TODO: write the profile
   @{bin}/setsebool                   PUx, # TODO: write the profile
