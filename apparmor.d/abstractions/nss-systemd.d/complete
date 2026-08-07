@@ -5,4 +5,6 @@
   @{run}/systemd/io.systemd.NamespaceResource rw,
   @{run}/systemd/resolve/io.systemd.Resolve rw,
 
+  /etc/userdb/ r,
+
 # vim:syntax=apparmor
