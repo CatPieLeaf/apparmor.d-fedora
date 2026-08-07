@@ -42,6 +42,7 @@ profile systemd-sysusers @{exec_path} flags=(attach_disconnected) {
   /etc/ r,
   /etc/login.defs r,
   /etc/nsswitch.conf r,
+  /etc/userdb/ r,
 
   # On systems with authselect installed, /etc/nsswitch.conf is a symlink to /etc/authselect/nsswitch.conf
   #aa:only fedora
