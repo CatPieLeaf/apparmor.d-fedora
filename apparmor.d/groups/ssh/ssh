@@ -42,6 +42,9 @@ profile ssh @{exec_path} flags=(attach_disconnected) {
   /etc/machine-id r,
   /etc/gss/mech.d/{,*} r,
 
+  #aa:only fedora
+  /etc/crypto-policies/back-ends/openssh.config r,
+
   / r,
 
   owner @{HOME}/@{XDG_SSH_DIR}/{,*} r,
