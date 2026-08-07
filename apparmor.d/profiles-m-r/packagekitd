@@ -57,6 +57,7 @@ profile packagekitd @{exec_path} flags=(attach_disconnected) {
   @{bin}/gzip           rix,
   @{bin}/id             rix,
   @{sbin}/ldconfig      rix, # TODO: rCx
+  @{bin}/mkdir          rix,
   @{bin}/repo2solv      rix,
   @{bin}/tar            rix,
   @{bin}/test           rix,
@@ -71,6 +72,7 @@ profile packagekitd @{exec_path} flags=(attach_disconnected) {
   @{bin}/systemctl                   Cx -> systemctl,
   @{bin}/systemd-inhibit             Px,
   @{bin}/update-desktop-database     Px,
+  @{bin}/update-mime-database        Px,
   @{bin}/xdg-mime                    Px,
   @{lib}/cnf-update-db               Px,
 
@@ -105,8 +107,10 @@ profile packagekitd @{exec_path} flags=(attach_disconnected) {
   @{bin}/find                        rix,
   @{bin}/selinuxenabled              PUx, # TODO: write the profile
   @{bin}/semodule                    PUx, # TODO: write the profile
+  @{bin}/setsebool                   PUx, # TODO: write the profile
   @{bin}/firewall-cmd                PUx, # TODO: write the profile
   @{bin}/killall                     PUx, # TODO: write the profile
+  @{bin}/udevadm                     Cx -> udevadm,
   @{sbin}/service                    PUx, # TODO: write the profile
   @{lib}/systemd/systemd-update-helper PUx, # TODO: write the profile
   @{lib}/selinux/varrun-convert.sh   PUx, # TODO: write the profile
@@ -115,6 +119,8 @@ profile packagekitd @{exec_path} flags=(attach_disconnected) {
   @{bin}/systemd-run                 Px,
   @{bin}/systemd-sysusers            Px,
   @{bin}/journalctl                  Px,
+  @{bin}/kernel-install               Px,
+  @{bin}/kmod                         Px,
   @{bin}/gio-querymodules-{32,64}    Px -> gio-querymodules,
 
   #aa:lint ignore=too-wide
@@ -124,6 +130,7 @@ profile packagekitd @{exec_path} flags=(attach_disconnected) {
   @{efi}/** rwl,
   /etc/** rwl,
   /opt/** rwl,
+  @{run}/** rw,
   /srv/** rwl,
   /usr/** rwlk,
   /var/** rwlk,
@@ -245,6 +252,14 @@ profile packagekitd @{exec_path} flags=(attach_disconnected) {
     capability net_admin,
 
     include if exists <local/packagekitd_systemctl>
+  }
+
+  #aa:only fedora
+  profile udevadm {
+    include <abstractions/base>
+    include <abstractions/app/udevadm>
+
+    include if exists <local/packagekitd_udevadm>
   }
 
   include if exists <local/packagekitd>
