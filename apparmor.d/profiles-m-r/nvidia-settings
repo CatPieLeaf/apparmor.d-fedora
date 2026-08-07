@@ -12,6 +12,7 @@ profile nvidia-settings @{exec_path} flags=(attach_disconnected) {
   include <abstractions/cgroup-limits>
   include <abstractions/dconf-write>
   include <abstractions/desktop>
+  include <abstractions/fontconfig-cache-write>
   include <abstractions/gstreamer>
   include <abstractions/nameservice-strict>
   include <abstractions/nvidia-strict>
