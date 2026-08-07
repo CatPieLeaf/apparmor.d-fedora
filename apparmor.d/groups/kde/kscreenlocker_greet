@@ -108,6 +108,11 @@ profile kscreenlocker_greet @{exec_path} {
 
   owner @{tmp}/*-cover-*.{jpg,png} r,
 
+  # Wallpaper slideshow scan probes /tmp broadly for image candidates;
+  # harmless when it hits an unrelated app's temp socket, e.g. Chromium's
+  # single-instance lock.
+  deny owner @{tmp}/.org.chromium.Chromium.@{rand6} r,
+
   @{run}/faillock/@{user} rwk,
 
   @{sys}/devices/system/node/ r,
