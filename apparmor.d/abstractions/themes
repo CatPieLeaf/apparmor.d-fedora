@@ -6,6 +6,9 @@
 
   /usr/share/themes/{,**} r,
 
+  #aa:only fedora
+  /usr/share/union/css/defaults/default.css r,
+
   owner @{HOME}/.themes/{,**} r,
   owner @{user_share_dirs}/themes/{,**} r,
 
