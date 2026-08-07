@@ -1,0 +1,44 @@
+#cloud-config
+
+packages: *kde-packages
+
+runcmd:
+  # AppArmor userspace tools from Rakuos (no official Fedora package)
+  - dnf5 -y config-manager addrepo --from-repofile=https://repo.rakuos.org/rakuos.repo
+  # Rakuos systemd is built with AppArmor support, Fedora's stock one is not
+  - dnf5 -y --repo rakuos install systemd systemd-udev systemd-libs
+  - dnf5 -y install apparmor-libs apparmor-parser apparmor-utils apparmor-profiles python3-LibAppArmor python3-apparmor
+
+  # kernel-p03: stock Fedora kernel has no AppArmor LSM built in
+  - dnf5 -y copr enable catpieleaf/kernel-p03
+  - dnf5 -y install kernel-p03
+
+  # Build and install apparmor.d itself from this fork's main branch,
+  # locally - not from the copr, so the VM tests current local work
+  - git clone --depth 1 -b main https://github.com/CatPieLeaf/apparmor.d-fedora.git /root/apparmor.d-fedora
+  - |
+    cd /root/apparmor.d-fedora
+    cp dists/apparmor.d-fedora.spec dists/apparmor.d.spec
+    DISTRIBUTION=fedora just rpm
+
+  # Add AppArmor to the kernel command line (BLS, not a regenerated grub.cfg)
+  - grubby --update-kernel=ALL --args="lsm=landlock,lockdown,yama,integrity,apparmor,bpf apparmor.debug=1"
+
+  # Enable core services
+  - systemctl enable auditd
+  - systemctl enable rngd
+  - systemctl enable chronyd
+  - systemctl enable sddm
+  - systemctl enable NetworkManager
+
+# Reboot into kernel-p03 so later apparmor_parser/aa-log checks run
+# against a kernel that actually has the AppArmor LSM
+power_state:
+  mode: reboot
+  delay: 1
+  condition: true
+
+write_files:
+  - *setup-bash-aliases         # Set some bash aliases
+  - *shared-directory           # Setup shared directory
+  - *disable-printk-ratelimit   # Disable printk rate limiting
