@@ -32,6 +32,9 @@ profile sysctl @{exec_path} {
   @{PROC}/sys/ r,
   @{PROC}/sys/** rw,
 
+  # sudo hands off its controlling tty; sysctl flocks it when run interactively
+  owner /dev/pts/@{u16} k,
+
   # Inherit Silencer
   deny network inet6 stream,
   deny network inet stream,
