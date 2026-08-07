@@ -14,6 +14,7 @@ profile firewalld @{exec_path} flags=(attach_disconnected) {
   include <abstractions/bus/system/org.freedesktop.PolicyKit1>
   include <abstractions/nameservice-strict>
   include <abstractions/network-manager-observe>
+  include <abstractions/ssl_certs>
 
   capability dac_read_search,
   capability mknod,
