@@ -13,6 +13,10 @@
 
   #aa:only fedora
   @{lib}/fontconfig/cache/ w,
+  #aa:only fedora
+  owner @{lib}/fontconfig/cache/@{hex32}-le{32,64}{,d4}.cache-@{u8} wl,
+  #aa:only fedora
+  owner @{lib}/fontconfig/cache/@{hex32}-le{32,64}{,d4}.cache-@{u8}.TMP-@{rand6} wl,
 
   owner /var/cache/fontconfig/CACHEDIR.TAG w,
   owner /var/cache/fontconfig/CACHEDIR.TAG.LCK wl,
