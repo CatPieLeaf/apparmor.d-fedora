@@ -21,6 +21,10 @@ profile ffprobe @{exec_path} {
   owner @{user_music_dirs}/** rw,
   owner @{user_videos_dirs}/** rw,
 
+  # Thumbnailers/media players invoke ffprobe on files inside flatpak app
+  # data dirs too (e.g. Bottles' Wine prefix game assets)
+  owner @{HOME}/.var/app/*/data/** r,
+
   @{sys}/devices/system/node/ r,
   @{sys}/devices/system/node/node@{int}/meminfo r,
 
