@@ -32,6 +32,11 @@ profile thermald @{exec_path} flags=(attach_disconnected) {
   @{sys}/devices/platform/ r,
   @{sys}/devices/platform/** r,
 
+  # Driver directory names come from the hardware's own ACPI device name,
+  # e.g. Intel's INT3400 thermal driver registers as "int3400 thermal"
+  @{sys}/bus/platform/drivers/ r,
+  @{sys}/bus/platform/drivers/*/ r,
+
   @{sys}/firmware/acpi/pm_profile r,
 
   @{sys}/devices/system/cpu/present r,
@@ -42,6 +47,7 @@ profile thermald @{exec_path} flags=(attach_disconnected) {
   @{sys}/devices/@{pci}/*_backlight/{,max_,actual_}brightness r,
   @{sys}/devices/@{pci}/power_limits/power_limit_@{int}_max_uw r,
   @{sys}/devices/@{pci}/power_limits/power_limit_@{int}_min_uw r,
+  @{sys}/devices/@{pci}/power_limits/power_limit_@{int}_step_uw r,
   @{sys}/devices/@{pci}/power_limits/power_limit_@{int}_tmax_us r,
   @{sys}/devices/@{pci}/power_limits/power_limit_@{int}_tmin_us r,
   @{sys}/devices/@{pci}/tcc_offset_degree_celsius w,
