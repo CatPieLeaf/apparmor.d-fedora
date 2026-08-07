@@ -40,6 +40,8 @@ profile NetworkManager @{exec_path} flags=(attach_disconnected) {
 
   signal send set=(term) peer=dnsmasq,
 
+  ptrace read peer=firewalld,
+
   #aa:dbus own bus=system name=org.freedesktop.NetworkManager
 
   #aa:dbus talk bus=system name=fi.w1.wpa_supplicant1 label=wpa-supplicant
