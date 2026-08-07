@@ -59,6 +59,7 @@ profile flatpak-portal @{exec_path} flags=(attach_disconnected) {
   /var/lib/flatpak/repo/objects/*/*.commit r,
   /var/lib/flatpak/repo/tmp/ r,
   /var/lib/flatpak/repo/refs/remotes/*/app/@{appid}/@{arch}/stable r,
+  /var/lib/flatpak/repo/*.trustedkeys.gpg r,
 
   # Fedora's curated Flathub allowlist (fedora-repos-flathub package)
   #aa:only fedora
@@ -76,6 +77,7 @@ profile flatpak-portal @{exec_path} flags=(attach_disconnected) {
   owner @{user_cache_dirs}/flatpak/system-cache/ r,
   owner @{user_cache_dirs}/flatpak/system-cache/summaries/ r,
   owner @{user_cache_dirs}/flatpak/system-cache/summaries/*.idx{,.sig} r,
+  owner @{user_cache_dirs}/flatpak/system-cache/summaries/*.sub rw,
 
   owner @{user_config_dirs}/user-dirs.dirs r,
 
