@@ -12,7 +12,7 @@
 %define _disable_source_fetch 0
 
 # Numeric release for the Source0 tag name (v<VERSION>-<tag_release>); must match the git tag
-%global tag_release 3
+%global tag_release 4
 
 Name:           apparmor.d-fedora
 Version:        0.4910.0
