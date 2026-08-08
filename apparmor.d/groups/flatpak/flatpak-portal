@@ -45,6 +45,8 @@ profile flatpak-portal @{exec_path} flags=(attach_disconnected) {
 
   @{bin}/flatpak rPx,
   @{bin}/gpgconf Px,
+  @{bin}/gpg Px,
+  @{bin}/gpgsm Px,
 
   /usr/share/xdg-desktop-portal/portals/{,*.portal} r,
 
@@ -64,6 +66,7 @@ profile flatpak-portal @{exec_path} flags=(attach_disconnected) {
 
   # Scratch GPG homedir ostree creates to verify a remote's signature
   owner @{tmp}/ostree-gpg-@{rand6}/ rw,
+  owner @{tmp}/ostree-gpg-@{rand6}/** rwlk -> /tmp/ostree-gpg-@{rand6}/**,
 
   # Fedora's curated Flathub allowlist (fedora-repos-flathub package)
   #aa:only fedora
