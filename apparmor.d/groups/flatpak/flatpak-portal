@@ -81,9 +81,9 @@ profile flatpak-portal @{exec_path} flags=(attach_disconnected) {
   owner @{HOME}/.var/app/*/sandbox/ rw,
   owner @{att}@{HOME}/.var/app/*/sandbox/ rw,
 
-  owner @{user_cache_dirs}/flatpak/system-cache/ r,
-  owner @{user_cache_dirs}/flatpak/system-cache/summaries/ r,
-  owner @{user_cache_dirs}/flatpak/system-cache/summaries/*.idx{,.sig} r,
+  owner @{user_cache_dirs}/flatpak/system-cache/ rw,
+  owner @{user_cache_dirs}/flatpak/system-cache/summaries/ rw,
+  owner @{user_cache_dirs}/flatpak/system-cache/summaries/*.idx{,.sig} rw,
   owner @{user_cache_dirs}/flatpak/system-cache/summaries/*.sub rw,
 
   owner @{user_config_dirs}/user-dirs.dirs r,
