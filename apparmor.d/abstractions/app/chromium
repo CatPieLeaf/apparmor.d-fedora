@@ -277,6 +277,14 @@
 
     unix (send receive) type=seqpacket peer=(label=@{name}),
 
+    network inet6 dgram,
+    network inet stream,
+
+    # Fedora/RHEL path for the openldap client config; Debian ships it at
+    # /etc/ldap/ldap.conf instead, add that path when it's seen denied there
+    #aa:only fedora
+    /etc/openldap/ldap.conf r,
+
     @{lib_dirs}/chrome_crashpad_handler mrix,
     @{lib_dirs}/@{name}_crashpad_handler mrix,
 
