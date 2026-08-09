@@ -85,6 +85,8 @@ profile flatpak-portal @{exec_path} flags=(attach_disconnected) {
   owner @{user_cache_dirs}/flatpak/system-cache/summaries/ rw,
   owner @{user_cache_dirs}/flatpak/system-cache/summaries/*.idx{,.sig} rw,
   owner @{user_cache_dirs}/flatpak/system-cache/summaries/*.sub rw,
+  # GLib's g_file_replace() writes to a temp file then renames it over the target
+  owner @{user_cache_dirs}/flatpak/system-cache/summaries/.goutputstream-@{rand6} rwlk -> @{user_cache_dirs}/flatpak/system-cache/summaries/.goutputstream-@{rand6},
 
   owner @{user_config_dirs}/user-dirs.dirs r,
 
