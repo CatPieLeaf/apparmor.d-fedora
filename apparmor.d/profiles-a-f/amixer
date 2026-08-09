@@ -12,6 +12,7 @@ profile amixer @{exec_path} {
   include <abstractions/base>
   include <abstractions/audio-server>
   include <abstractions/nameservice-strict>
+  include <abstractions/sys/dmi>
 
   @{exec_path} mr,
 
@@ -23,6 +24,7 @@ profile amixer @{exec_path} {
   owner @{PROC}/@{pid}/task/@{tid}/comm rw,
 
   owner /dev/tty@{u8} rw,
+  owner /dev/pts/@{u8} rw, # file_inherit
 
   include if exists <local/amixer>
 }
