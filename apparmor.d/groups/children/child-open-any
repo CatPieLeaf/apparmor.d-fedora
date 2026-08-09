@@ -15,6 +15,7 @@ profile child-open-any flags=(attach_disconnected,mediate_deleted) {
   include <abstractions/base>
   include <abstractions/app/open>
   include <abstractions/path>
+  include <abstractions/user-read-strict>
 
   # Falls back to inherited confinement under no_new_privs (portal-spawned); needs mmap too then
   @{bin}/**                     mPUx,
