@@ -39,6 +39,9 @@ profile coredumpctl @{exec_path} {
   owner @{tmp}/*.coredump w,
   owner @{tmp}/core.* w,
   owner /var/tmp/coredump-* rw,
+  # `coredumpctl dump -o <path>` lets the user pick any output path under /tmp;
+  # scope to core-dump-shaped names so this stays narrower than a bare @{tmp}/**
+  owner @{tmp}/**/core@{int}{,_*} rwlk -> @{tmp}/**/core@{int}{,_*},
 
         @{PROC}/1/cgroup r,
         @{PROC}/sys/fs/nr_open r,
@@ -55,6 +58,11 @@ profile coredumpctl @{exec_path} {
 
     @{bin}/gdb    mr,
     @{bin}/iconv  rix,
+
+    # Fedora's gdb package ships a thin wrapper at @{bin}/gdb that re-execs
+    # the real binary from libexec; Debian/Arch keep gdb self-contained
+    #aa:only fedora
+    @{lib}/gdb mrix,
 
     @{bin}/* r,
 
