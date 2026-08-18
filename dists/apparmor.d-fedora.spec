@@ -52,7 +52,7 @@ Built in ENFORCE mode: violations are actively blocked. Make sure
 you have already validated this profile set in complain mode.
 %endif
 
-%pkg_completion -Bz aa-log aa-mode
+%pkg_completion -Bz aa-log aa-mode aa-install
 
 %prep
 %autosetup -n apparmor.d-fedora-main
@@ -91,11 +91,21 @@ fi
 %files
 %license LICENSE
 %doc README.md
-%config /etc/apparmor.d/
+%{_datadir}/apparmor.d/
+%config /etc/apparmor.d/abstractions
+%config /etc/apparmor.d/tunables
+%config /etc/apparmor.d/disable/hostname
+%{_bindir}/aa-install
 %{_bindir}/aa-log
 %{_bindir}/aa-mode
 %doc %{_mandir}/man1/aa-*.1.gz
 %doc %{_mandir}/man8/aa-*.8.gz
+
+%dir %{_datadir}/apparmor
+%{_datadir}/apparmor/modes
+%{_datadir}/apparmor/flags.d
+%{_datadir}/apparmor/ignore.d
+%{_datadir}/apparmor/overwrite.d/
 
 %dir %{_unitdir}/dbus.service.d
 %{_unitdir}/dbus.service.d/apparmor.conf
