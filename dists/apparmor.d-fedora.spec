@@ -65,9 +65,12 @@ just enforce
 %endif
 
 %install
-just destdir="%{buildroot}" install-prebuilt
-just destdir="%{buildroot}" install-base
-just destdir="%{buildroot}" install-tools
+# Plain `install` writes profiles straight into /etc/apparmor.d/ instead of
+# the new /usr/share/apparmor.d/ vendor tree - apparmor.service only ever
+# reloads from /etc/apparmor.d/, so the vendor-tree model needs aa-install
+# to bridge the two and we don't use aa-install here. Without this, purge-
+# cache + service restart has nothing new to pick up until next reboot.
+just destdir="%{buildroot}" install
 
 # install-tools ships zsh completions with a .zsh suffix; %%pkg_completion -z
 # expects them extensionless (_aa-log, not _aa-log.zsh).
@@ -91,10 +94,7 @@ fi
 %files
 %license LICENSE
 %doc README.md
-%{_datadir}/apparmor.d/
-%config /etc/apparmor.d/abstractions
-%config /etc/apparmor.d/tunables
-%config /etc/apparmor.d/disable/hostname
+%config /etc/apparmor.d/
 %{_bindir}/aa-install
 %{_bindir}/aa-log
 %{_bindir}/aa-mode
