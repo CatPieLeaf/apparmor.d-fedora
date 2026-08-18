@@ -92,6 +92,7 @@ help:
 # Build the go programs
 [group('build')]
 build:
+	@go build -o {{build}}/ ./cmd/aa-install
 	@go build -o {{build}}/ ./cmd/aa-log
 	@go build -o {{build}}/ ./cmd/aa-mode
 	@go build -o {{build}}/ ./cmd/prebuild
@@ -150,6 +151,7 @@ install-base:
 install-tools:
 	#!/usr/bin/env bash
 	set -eu -o pipefail
+	install -Dm0755 {{build}}/aa-install {{destdir}}/usr/bin/aa-install
 	install -Dm0755 {{build}}/aa-log {{destdir}}/usr/bin/aa-log
 	install -Dm0755 {{build}}/aa-mode {{destdir}}/usr/bin/aa-mode
 	mapfile -t share < <(find "{{build}}/share" -type f -not -name "*.md" -not -name "*aa-flatpak*" -printf "%P\n")
@@ -168,18 +170,12 @@ install-aa-flatpak:
 
 # Install prebuilt profiles
 [group('install')]
-install-prebuilt:
+install-prebuilt: _install-fixup
 	#!/usr/bin/env bash
 	set -eu -o pipefail
 	mapfile -t aa < <(find "{{build}}/apparmor.d" -type f -not -path "*/abstractions/*" -not -path "*/tunables/*" -printf "%P\n")
 	for file in "${aa[@]}"; do
-		#install -Dm0644 "{{build}}/apparmor.d/$file" "{{destdir}}/usr/share/apparmor.d/$file"
-		install -Dm0644 "{{build}}/apparmor.d/$file" "{{destdir}}/etc/apparmor.d/$file"
-	done
-	mapfile -t links < <(find "{{build}}/apparmor.d" -type l -printf "%P\n")
-	for file in "${links[@]}"; do
-		mkdir -p "{{destdir}}/etc/apparmor.d/disable"
-		cp -d "{{build}}/apparmor.d/$file" "{{destdir}}/etc/apparmor.d/$file"
+		install -Dm0644 "{{build}}/apparmor.d/$file" "{{destdir}}/usr/share/apparmor.d/$file"
 	done
 	for file in "{{build}}/systemd/system/"*; do
 		service="$(basename "$file")"
@@ -190,19 +186,21 @@ install-prebuilt:
 		install -Dm0644 "$file" "{{destdir}}/usr/lib/systemd/user/$service.d/apparmor.conf"
 	done
 
+# Ensure profiles compatibility with upstream
+[group('install')]
+_install-fixup:
+	# The hostname profile fully conflicts with apparmor.d and must be disabled
+	@mkdir -p "{{destdir}}/etc/apparmor.d/disable"
+	@ln -sf ../hostname "{{destdir}}/etc/apparmor.d/disable/hostname"
+
 # Install prebuild profiles
 [group('install')]
-install: install-tools
+install: install-tools _install-fixup
 	#!/usr/bin/env bash
 	set -eu -o pipefail
 	mapfile -t aa < <(find "{{build}}/apparmor.d" -type f -printf "%P\n")
 	for file in "${aa[@]}"; do
 		install -Dm0644 "{{build}}/apparmor.d/$file" "{{destdir}}/etc/apparmor.d/$file"
-	done
-	mapfile -t links < <(find "{{build}}/apparmor.d" -type l -printf "%P\n")
-	for file in "${links[@]}"; do
-		mkdir -p "{{destdir}}/etc/apparmor.d/disable"
-		cp -d "{{build}}/apparmor.d/$file" "{{destdir}}/etc/apparmor.d/$file"
 	done
 	for file in "{{build}}/systemd/system/"*; do
 		service="$(basename "$file")"
@@ -272,7 +270,7 @@ build-dpkg: (_ensure_pkgdest)
 
 # Build the package on OpenSUSE
 [group('packages')]
-build-rpm: (_ensure_pkgdest)
+build-rpm dist="opensuse": (_ensure_pkgdest)
 	#!/usr/bin/env bash
 	set -eu -o pipefail
 	RPMBUILD_ROOT=$(mktemp -d /tmp/{{pkgname}}.XXXXXX)
@@ -282,7 +280,7 @@ build-rpm: (_ensure_pkgdest)
 	readonly RPMBUILD_ROOT ARCH VERSION
 
 	mkdir -p "$RPMBUILD_ROOT"/{BUILD,BUILDROOT,RPMS,SOURCES,SPECS,SRPMS/tmp}
-	cp -p "dists/{{pkgname}}.spec" "$RPMBUILD_ROOT/SPECS"
+	cp -p "dists/{{pkgname}}-{{dist}}.spec" "$RPMBUILD_ROOT/SPECS/{{pkgname}}.spec"
 	tar -czf "$RPMBUILD_ROOT/SOURCES/{{pkgname}}-$VERSION.tar.gz" --transform "s,^,{{pkgname}}-$VERSION/," ./*
 
 	cd "$RPMBUILD_ROOT"
@@ -295,22 +293,26 @@ build-rpm: (_ensure_pkgdest)
 # Build & install apparmor.d on Arch based systems
 [group('packages')]
 pkg: build-pkg
-	@sudo pacman -U --noconfirm \
-		{{pkgdest}}/{{pkgname}}-`just version`*.pkg.tar* \
-		{{pkgdest}}/{{pkgname}}-base-`just version`*.pkg.tar* \
-		{{pkgdest}}/{{pkgname}}-tools-`just version`*.pkg.tar*
+	#!/usr/bin/env bash
+	shopt -s extglob
+	sudo pacman -U --noconfirm \
+		{{pkgdest}}/{{pkgname}}?(-base|-tools)-$(just version)*.pkg.tar!(*.sig)
 
 # Build & install apparmor.d on Debian based systems
 [group('packages')]
-dpkg name="": build-dpkg
+dpkg: build-dpkg
 	@sudo dpkg -i  \
-		{{pkgdest}}/{{pkgname}}{{ if name != "" { "." + name } else { "" } }}_`just version`*.deb
+		{{pkgdest}}/{{pkgname}}_`just version`*.deb \
+		{{pkgdest}}/{{pkgname}}-base_`just version`*.deb \
+		{{pkgdest}}/{{pkgname}}-tools_`just version`*.deb
 
 # Build & install apparmor.d on OpenSUSE based systems
 [group('packages')]
 rpm: build-rpm
 	@sudo rpm -ivh --force \
-		{{pkgdest}}/{{pkgname}}-`just version`*.rpm
+		{{pkgdest}}/{{pkgname}}-`just version`-*.rpm \
+		{{pkgdest}}/{{pkgname}}-base-`just version`-*.rpm \
+		{{pkgdest}}/{{pkgname}}-tools-`just version`-*.rpm
 
 # Run the linters
 [group('linter')]
@@ -321,7 +323,7 @@ lint:
 	shellcheck --shell=bash \
 		PKGBUILD dists/*.sh tests/check.sh \
 		tests/packer/*.sh tests/packer/src/aa-update \
-		tests/autopkgtest/autopkgtest.sh debian/common.postinst debian/common.postrm
+		tests/autopkgtest/autopkgtest.sh debian/apparmor.d.postinst debian/apparmor.d.postrm
 
 # Run style checks on the profiles
 [group('linter')]
@@ -331,6 +333,7 @@ check:
 # Generate the man pages
 [group('docs')]
 man:
+	@pandoc -t man -s -o share/man/man1/aa-install.1 share/man/man1/aa-install.md
 	@pandoc -t man -s -o share/man/man1/aa-mode.1 share/man/man1/aa-mode.md
 	@pandoc -t man -s -o share/man/man8/aa-log.8 share/man/man8/aa-log.md
 
@@ -352,8 +355,9 @@ serve:
 # Remove all build artifacts
 clean:
 	@rm -rf \
-		debian/.debhelper debian/debhelper* debian/*.debhelper debian/{{pkgname}}* \
-		debian/*.substvars debian/*.debhelper debian/files \
+		debian/.debhelper debian/debhelper* debian/*.debhelper debian/{{pkgname}}/ \
+		debian/{{pkgname}}-base/ debian/{{pkgname}}-tools/ \
+		debian/*.substvars debian/*.debhelper debian/*.debhelper.log debian/files \
 		{{pkgdest}}/{{pkgname}}* {{pkgdest}}/ubuntu {{pkgdest}}/debian \
 		{{pkgdest}}/archlinux {{pkgdest}}/opensuse \
 		{{build}} coverage.out .logs/autopkgtest/ site .cache
@@ -419,11 +423,11 @@ create osinfo flavor:
 		--vcpus {{vcpus}} \
 		--ram {{ram}} \
 		--machine q35 \
-		{{ if osinfo == "archlinux" { "" } else { "--boot uefi" } }} \
+		{{ if osinfo == "archlinux" { "" } else if osinfo == "fedora44" { "" } else { "--boot uefi" } }} \
 		--memorybacking source.type=memfd,access.mode=shared \
 		--disk path={{vm}}/{{prefix}}{{osinfo}}-{{flavor}}.qcow2,format=qcow2,bus=virtio \
 		--filesystem "`pwd`,0a31bc478ef8e2461a4b1cc10a24cc4",accessmode=passthrough,driver.type=virtiofs \
-		--os-variant "{{ if osinfo == "opensuse" { "opensusetumbleweed" } else { osinfo } }}" \
+		--os-variant "{{ if osinfo == "opensuse" { "opensusetumbleweed" } else if osinfo == "fedora44" { "fedora42" } else { osinfo } }}" \
 		--graphics spice \
 		--audio id=1,type=spice \
 		--sound model=ich9 \
@@ -640,7 +644,7 @@ commit:
 	cat debian/changelog >> debian/changelog.tmp
 	mv debian/changelog.tmp debian/changelog
 	sed -i "s/^pkgver=.*/pkgver=$version/" PKGBUILD
-	sed -i "s/^Version:.*/Version:        $version/" "dists/{{pkgname}}.spec"
+	sed -i "s/^Version:.*/Version:        $version/" "dists/{{pkgname}}-opensuse.spec"
 	# Stage only the version-bump line, rebuilt from HEAD, so any other
 	# working-tree changes in these files never leak into the release commit.
 	stage_bump() {
@@ -650,7 +654,7 @@ commit:
 		git update-index --cacheinfo "$mode,$blob,$file"
 	}
 	stage_bump PKGBUILD "s/^pkgver=.*/pkgver=$version/"
-	stage_bump "dists/{{pkgname}}.spec" "s/^Version:.*/Version:        $version/"
+	stage_bump "dists/{{pkgname}}-opensuse.spec" "s/^Version:.*/Version:        $version/"
 	git add debian/changelog
 	git commit -S -m "Release {{pkgname}} v$version"
 	git tag -a "v$version" -m "{{pkgname}} v$version" --local-user={{gpgkey}}

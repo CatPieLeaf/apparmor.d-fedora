@@ -7,6 +7,7 @@
 #  just package ubuntu 24.04
 #  just package archlinux
 #  just package opensuse
+#  just package fedora 44
 
 set -eu -o pipefail
 
@@ -79,7 +80,7 @@ build_in_docker_dpkg() {
 
 	# Adjustments for test flavor
 	if [[ "$FLAVOR" == "test" ]]; then
-		sed -i -e "s;just build=.build/complain complain;just build=.build/complain complain-test;" "$VOLUME/$PKGNAME/debian/rules"
+		sed -i -e "s;just build=.build complain;just build=.build complain-test;" "$VOLUME/$PKGNAME/debian/rules"
 	fi
 
 	if _exist "$img"; then
@@ -91,7 +92,12 @@ build_in_docker_dpkg() {
 		docker run -tid --name "$img" --volume "$VOLUME:$BUILDIR" \
 			--env DISTRIBUTION="$target" "$BASEIMAGE/$dist:$release"
 		docker exec "$img" sudo apt-get update -q
-		docker exec "$img" sudo apt-get install -y config-package-dev lsb-release libdistro-info-perl golang-go
+		docker exec "$img" sudo apt-get install -y lsb-release libdistro-info-perl
+		local aptopt=()
+		if [[ "$dist" == debian && "$release" == "13" ]]; then
+			aptopt=(-t trixie-backports)
+		fi
+		docker exec "$img" sudo apt-get install -y "${aptopt[@]}" golang-go
 	fi
 
 	docker exec --workdir="$BUILDIR/$PKGNAME" "$img" just build-dpkg
@@ -99,21 +105,29 @@ build_in_docker_dpkg() {
 }
 
 build_in_docker_rpm() {
-	local dist="$1"
-	local img="$PREFIX$dist"
+	local dist="$1" release="${2:-}"
+	local img="$PREFIX$dist$release"
+	local tag="${release:-latest}"
 
 	if _exist "$img"; then
 		if ! _is_running "$img"; then
 			_start "$img"
 		fi
 	else
-		docker pull "$BASEIMAGE/$dist"
+		docker pull "$BASEIMAGE/$dist:$tag"
 		docker run -tid --name "$img" --volume "$VOLUME:$BUILDIR" \
-			"$BASEIMAGE/$dist"
-		docker exec "$img" sudo zypper install -y distribution-release golang-packaging apparmor-profiles
+			"$BASEIMAGE/$dist:$tag"
+		case "$dist" in
+		opensuse)
+			docker exec "$img" sudo zypper install -y distribution-release golang-packaging apparmor-profiles
+			;;
+		fedora)
+			docker exec "$img" sudo dnf -y install golang go-rpm-macros
+			;;
+		esac
 	fi
 
-	docker exec --workdir="$BUILDIR/$PKGNAME" "$img" just build-rpm
+	docker exec --workdir="$BUILDIR/$PKGNAME" "$img" just build-rpm "$dist"
 	mv "$VOLUME/$PKGNAME/$OUTPUT/$PKGNAME"*.rpm "$OUTPUT"
 }
 
@@ -148,9 +162,9 @@ main() {
 		build_in_docker_dpkg "$DISTRIBUTION" "$RELEASE"
 		;;
 
-	opensuse)
+	opensuse | fedora)
 		sync
-		build_in_docker_rpm "$DISTRIBUTION"
+		build_in_docker_rpm "$DISTRIBUTION" "$RELEASE"
 		;;
 
 	fedora)
