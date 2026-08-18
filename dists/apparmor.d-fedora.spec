@@ -1,85 +1,116 @@
 # apparmor.d - Full set of apparmor profiles
 # Copyright (c) 2023 SUSE LLC
 # Copyright (c) 2023 Christian Boltz
-# Copyright (C) 2023-2026 Alexandre Pujol <alexandre@pujol.io>
+# Copyright (C) 2023-2024 Alexandre Pujol <alexandre@pujol.io>
 # Copyright (c) 2026 CatPieLeaf <catpieleaf@proton.me>
 # SPDX-License-Identifier: GPL-2.0-only
 
-Name:           apparmor.d
-Version:        0.4910.0
+# Warning: for development only, use https://copr.fedorainfracloud.org/coprs/catpieleaf/apparmor.d for production use.
+
+%define _complain 0
+
+%define _disable_source_fetch 0
+
+# Upstream apparmor.d version this fork is based on.
+%global upstream_version 0.4910.0
+
+# Fork's own release counter, independent of RPM Release below (terrapkg
+# owns that field). Bumped per fork change; embedded in the Source0 tag
+# name (v<upstream_version>-<tag_release>), must match the git tag, and
+# shown in Version below (via ^) so the fork's own version is visible in
+# the built package (e.g. 0.4910.0^5) instead of only the upstream one.
+%global tag_release 6
+
+Name:           apparmor.d-fedora
+Version:        %{upstream_version}^%{tag_release}
 Release:        1%{?dist}
 Summary:        Full set of AppArmor policies
 License:        GPL-2.0-only
-URL:            https://github.com/roddhjav/apparmor.d
-Source0:        %{name}-%{version}.tar.gz
+URL:            https://github.com/CatPieLeaf/apparmor.d-fedora
+Source0:        %{url}/archive/refs/heads/main.tar.gz
 
 Requires:       apparmor-profiles
 Requires:       apparmor-parser
 Requires:       apparmor-utils
+Provides:       apparmor.d
+Packager:       CatPieLeaf <catpieleaf@proton.me>
 BuildRequires:  just
 BuildRequires:  golang
 BuildRequires:  systemd-rpm-macros
+BuildRequires:  curl
+BuildRequires:  jq
 
 %description
-AppArmor.d is a set of over 1500 AppArmor profiles whose aim is to confine most Linux based applications and processes.
+AppArmor.d is a set of over 1500 AppArmor profiles whose aim is to
+confine most Linux based applications and processes.
 
-%package base
-Summary:        Full set of AppArmor policies (base abstractions, tunables, and booleans)
-BuildArch:      noarch
+%if %{_complain}
+Built in COMPLAIN mode: violations are logged but not blocked.
+Use this mode with aa-logprof for fixing profiles.
+%else
+Built in ENFORCE mode: violations are actively blocked. Make sure
+you have already validated this profile set in complain mode.
+%endif
 
-%description base
-apparmor.d-base is a set of base abstractions, tunables, and booleans defined by apparmor.d.
-
-%package tools
-Summary:        Full set of AppArmor policies (userland toolings)
-
-%description tools
-apparmor.d-tools is a set of userland toolings to help manage AppArmor profiles defined in apparmor.d.
+%pkg_completion -Bz aa-log aa-mode
 
 %prep
-%autosetup
+%autosetup -n apparmor.d-fedora-main
 
 %build
+%if %{_complain} == 1
 just complain
+%else
+just enforce
+%endif
 
 %install
 just destdir="%{buildroot}" install-prebuilt
 just destdir="%{buildroot}" install-base
 just destdir="%{buildroot}" install-tools
 
+# install-tools ships zsh completions with a .zsh suffix; %%pkg_completion -z
+# expects them extensionless (_aa-log, not _aa-log.zsh).
+for f in %{buildroot}%{_datadir}/zsh/site-functions/_aa-*.zsh; do
+    mv "$f" "${f%.zsh}"
+done
+
 %posttrans
 apparmor_parser --purge-cache || :
-%restart_on_update apparmor
+systemctl daemon-reload || :
+if systemctl is-active --quiet apparmor.service 2>/dev/null; then
+    systemctl try-restart apparmor.service || :
+fi
+
+%postun
+systemctl daemon-reload || :
+if [ $1 -eq 0 ] ; then
+    apparmor_parser --purge-cache || :
+fi
 
 %files
 %license LICENSE
 %doc README.md
-/usr/share/apparmor.d/
-%config /etc/apparmor.d/disable/hostname
-
-%dir /usr/lib/systemd/system/*.service.d
-/usr/lib/systemd/system/*.service.d/apparmor.conf
-%dir /usr/lib/systemd/user/*.service.d
-/usr/lib/systemd/user/*.service.d/apparmor.conf
-
-%files base
-%config /etc/apparmor.d/abstractions
-%config /etc/apparmor.d/tunables
-
-%files tools
-/usr/bin/aa-*
-
-%dir /usr/share/apparmor
-/usr/share/apparmor/modes
-/usr/share/apparmor/flags.d
-/usr/share/apparmor/ignore.d
-/usr/share/apparmor/overwrite.d/
-
-%dir /usr/share/zsh
-%dir /usr/share/zsh/site-functions
-/usr/share/zsh/site-functions/_aa-*.zsh
-/usr/share/bash-completion/completions/aa-*
+%config /etc/apparmor.d/
+%{_bindir}/aa-log
+%{_bindir}/aa-mode
 %doc %{_mandir}/man1/aa-*.1.gz
 %doc %{_mandir}/man8/aa-*.8.gz
 
+%dir %{_unitdir}/dbus.service.d
+%{_unitdir}/dbus.service.d/apparmor.conf
+%dir %{_unitdir}/dbus-broker.service.d
+%{_unitdir}/dbus-broker.service.d/apparmor.conf
+%dir %{_userunitdir}/dbus.service.d
+%{_userunitdir}/dbus.service.d/apparmor.conf
+%dir %{_userunitdir}/dbus-broker.service.d
+%{_userunitdir}/dbus-broker.service.d/apparmor.conf
+
 %changelog
+%(
+json=$(curl -fsSL https://api.github.com/repos/CatPieLeaf/apparmor.d-fedora/commits/main)
+sha=$(echo "$json" | jq -r '.sha[0:7]')
+msg=$(echo "$json" | jq -r '.commit.message | split("\n")[0]' | sed 's/%/%%/g')
+echo "* $(date '+%a %b %d %Y') CatPieLeaf <catpieleaf@proton.me> - %{version}-%{release}"
+echo "- ${sha}: ${msg}"
+)
